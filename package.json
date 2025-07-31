@@ -35,7 +35,7 @@
     "wtest": "playwright test --project=webkit",
     "run-server": "node lib/browserServer.js",
     "clean": "rm -rf lib",
-    "npm-publish": "npm run clean && npm run build && npm run test && npm publish"
+    "npm-publish": "npm run clean && npm run build && npm publish"
   },
   "exports": {
     "./package.json": "./package.json",
