@@ -1,3 +1,19 @@
+### 🎭 See the Difference!
+
+#### 😫 Without Playwright Plus MCP
+> Tired of constantly re-logging in? Watch how frustrating it is when your browser sessions keep getting lost...
+
+https://github.com/CC11001100/playwright-plus-mcp/raw/main/docs/images/before-use-playwright-plus-mcp.mp4
+
+#### 🚀 With Playwright Plus MCP
+> Experience the magic of persistent sessions! Multiple projects, multiple windows, all sessions preserved perfectly...
+
+https://github.com/CC11001100/playwright-plus-mcp/raw/main/docs/images/after-use-playwright-plus-mcp.mp4
+
+**What You Just Saw:**
+- 🔄 **Before:** Every new window = New login required. Frustrating, time-consuming, and interrupts your workflow.
+- ✨ **After:** Sessions persist across ALL windows. Login once, work everywhere. Smooth, efficient, and professional.
+
 ## Playwright MCP Plus
 
 A **enhanced** Model Context Protocol (MCP) server that provides browser automation capabilities using [Playwright](https://playwright.dev). 
