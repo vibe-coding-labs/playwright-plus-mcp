@@ -5,14 +5,14 @@
 
 **📹 Demo Video:**
 
-https://github.com/ai-coding-labs/playwright-plus-mcp/releases/download/v0.0.33/before-use-playwright-plus-mcp.mp4
+![Before: Constant Re-login Frustration](docs/images/before-use-playwright-plus-mcp.gif)
 
 #### 🚀 With Playwright Plus MCP
 > Experience the magic of persistent sessions! Multiple projects, multiple windows, all sessions preserved perfectly...
 
 **📹 Demo Video:**
 
-https://github.com/ai-coding-labs/playwright-plus-mcp/releases/download/v0.0.33/after-use-playwright-plus-mcp.mp4
+![After: Smooth Persistent Sessions](docs/images/after-use-playwright-plus-mcp.gif)
 
 > **💡 Note:** The videos demonstrate the dramatic difference in user experience between the standard Playwright MCP and our enhanced version with project isolation.
 
