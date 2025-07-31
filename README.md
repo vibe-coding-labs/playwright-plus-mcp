@@ -119,7 +119,7 @@ First, install the Playwright MCP server with your client.
 ```js
 {
   "mcpServers": {
-    "playwright": {
+    "playwright-plus": {
       "command": "npx",
       "args": [
         "-y",
@@ -135,7 +135,7 @@ First, install the Playwright MCP server with your client.
 ```js
 {
   "mcpServers": {
-    "playwright": {
+    "playwright-plus": {
       "command": "npx",
       "args": [
         "-y",
@@ -152,8 +152,8 @@ First, install the Playwright MCP server with your client.
 ```js
 {
   "mcpServers": {
-    "playwright": {
-      "command": "npx", 
+    "playwright-plus": {
+      "command": "npx",
       "args": [
         "-y",
         "@ai-coding-labs/playwright-mcp-plus@latest",
@@ -232,12 +232,12 @@ Use the Claude Code CLI to add the enhanced Playwright MCP server:
 
 **Standard version:**
 ```bash
-claude mcp add playwright npx -y @ai-coding-labs/playwright-mcp-plus@latest
+claude mcp add playwright-plus npx -y @ai-coding-labs/playwright-mcp-plus@latest
 ```
 
 **With project isolation (recommended):**
 ```bash
-claude mcp add playwright npx -y @ai-coding-labs/playwright-mcp-plus@latest --project-isolation
+claude mcp add playwright-plus npx -y @ai-coding-labs/playwright-mcp-plus@latest --project-isolation
 ```
 </details>
 
@@ -253,7 +253,7 @@ Follow the MCP install [guide](https://modelcontextprotocol.io/quickstart/user),
 
 #### Click the button to install:
 
-[![Install MCP Server](https://cursor.com/deeplink/mcp-install-dark.svg)](https://cursor.com/install-mcp?name=playwright&config=eyJjb21tYW5kIjoibnB4IEBwbGF5d3JpZ2h0L21jcEBsYXRlc3QifQ%3D%3D)
+[![Install MCP Server](https://cursor.com/deeplink/mcp-install-dark.svg)](https://cursor.com/install-mcp?name=playwright-plus&config=eyJjb21tYW5kIjoibnB4IEBwbGF5d3JpZ2h0L21jcEBsYXRlc3QifQ%3D%3D)
 
 #### Or install manually:
 
@@ -273,7 +273,7 @@ Follow the MCP install [guide](https://github.com/google-gemini/gemini-cli/blob/
 
 #### Click the button to install:
 
-[![Install in Goose](https://block.github.io/goose/img/extension-install-dark.svg)](https://block.github.io/goose/extension?cmd=npx&arg=%40playwright%2Fmcp%40latest&id=playwright&name=Playwright&description=Interact%20with%20web%20pages%20through%20structured%20accessibility%20snapshots%20using%20Playwright)
+[![Install in Goose](https://block.github.io/goose/img/extension-install-dark.svg)](https://block.github.io/goose/extension?cmd=npx&arg=%40playwright%2Fmcp%40latest&id=playwright-plus&name=Playwright&description=Interact%20with%20web%20pages%20through%20structured%20accessibility%20snapshots%20using%20Playwright)
 
 #### Or install manually:
 
@@ -285,7 +285,7 @@ Go to `Advanced settings` -> `Extensions` -> `Add custom extension`. Name to you
 
 #### Click the button to install:
 
-[![Add MCP Server playwright to LM Studio](https://files.lmstudio.ai/deeplink/mcp-install-light.svg)](https://lmstudio.ai/install-mcp?name=playwright&config=eyJjb21tYW5kIjoibnB4IiwiYXJncyI6WyJAcGxheXdyaWdodC9tY3BAbGF0ZXN0Il19)
+[![Add MCP Server playwright-plus to LM Studio](https://files.lmstudio.ai/deeplink/mcp-install-light.svg)](https://lmstudio.ai/install-mcp?name=playwright-plus&config=eyJjb21tYW5kIjoibnB4IiwiYXJncyI6WyJAcGxheXdyaWdodC9tY3BAbGF0ZXN0Il19)
 
 #### Or install manually:
 
@@ -313,7 +313,7 @@ Follow the MCP install [guide](https://code.visualstudio.com/docs/copilot/chat/m
 
 ```bash
 # For VS Code
-code --add-mcp '{"name":"playwright","command":"npx","args":["-y","@ai-coding-labs/playwright-mcp-plus@latest","--project-isolation"]}'
+code --add-mcp '{"name":"playwright-plus","command":"npx","args":["-y","@ai-coding-labs/playwright-mcp-plus@latest","--project-isolation"]}'
 ```
 
 After installation, the Playwright MCP server will be available for use with your GitHub Copilot agent in VS Code.
@@ -396,7 +396,7 @@ state [here](https://playwright.dev/docs/auth).
 ```js
 {
   "mcpServers": {
-    "playwright": {
+    "playwright-plus": {
       "command": "npx",
       "args": [
         "@ai-coding-labs/playwright-mcp-plus@latest",
@@ -418,7 +418,7 @@ Without any isolation flags, sessions are shared between all projects (identical
 ```js
 {
   "mcpServers": {
-    "playwright": {
+    "playwright-plus": {
       "command": "npx",
       "args": ["@ai-coding-labs/playwright-mcp-plus@latest"]
     }
@@ -432,8 +432,8 @@ Enable project isolation with sessions stored in OS cache directory (invisible t
 ```js
 {
   "mcpServers": {
-    "playwright": {
-      "command": "npx", 
+    "playwright-plus": {
+      "command": "npx",
       "args": [
         "@ai-coding-labs/playwright-mcp-plus@latest",
         "--project-isolation"
@@ -454,10 +454,10 @@ Store sessions in project directory (creates `.user-session-data-directory/`):
 ```js
 {
   "mcpServers": {
-    "playwright": {
+    "playwright-plus": {
       "command": "npx",
       "args": [
-        "@ai-coding-labs/playwright-mcp-plus@latest", 
+        "@ai-coding-labs/playwright-mcp-plus@latest",
         "--project-isolation",
         "--project-isolation-session-strategy=project"
       ]
@@ -472,11 +472,11 @@ Store sessions in a custom location:
 ```js
 {
   "mcpServers": {
-    "playwright": {
+    "playwright-plus": {
       "command": "npx",
       "args": [
         "@ai-coding-labs/playwright-mcp-plus@latest",
-        "--project-isolation", 
+        "--project-isolation",
         "--project-isolation-session-strategy=custom",
         "--project-isolation-session-root-dir=/custom/sessions"
       ]
@@ -615,7 +615,7 @@ And then in MCP client config, set the `url` to the HTTP endpoint:
 ```js
 {
   "mcpServers": {
-    "playwright": {
+    "playwright-plus": {
       "url": "http://localhost:8931/mcp"
     }
   }
@@ -630,7 +630,7 @@ And then in MCP client config, set the `url` to the HTTP endpoint:
 ```js
 {
   "mcpServers": {
-    "playwright": {
+    "playwright-plus": {
       "command": "docker",
       "args": ["run", "-i", "--rm", "--init", "--pull=always", "mcr.microsoft.com/playwright/mcp"]
     }

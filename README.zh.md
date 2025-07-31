@@ -114,7 +114,7 @@
 ```js
 {
   "mcpServers": {
-    "playwright": {
+    "playwright-plus": {
       "command": "npx",
       "args": [
         "-y",
@@ -130,7 +130,7 @@
 ```js
 {
   "mcpServers": {
-    "playwright": {
+    "playwright-plus": {
       "command": "npx",
       "args": [
         "-y",
@@ -147,7 +147,7 @@
 ```js
 {
   "mcpServers": {
-    "playwright": {
+    "playwright-plus": {
       "command": "npx",
       "args": [
         "-y",
@@ -223,12 +223,12 @@ browser_navigate({
 
 **标准版本：**
 ```bash
-claude mcp add playwright npx -y @ai-coding-labs/playwright-mcp-plus@latest
+claude mcp add playwright-plus npx -y @ai-coding-labs/playwright-mcp-plus@latest
 ```
 
 **带项目隔离（推荐）：**
 ```bash
-claude mcp add playwright npx -y @ai-coding-labs/playwright-mcp-plus@latest --project-isolation
+claude mcp add playwright-plus npx -y @ai-coding-labs/playwright-mcp-plus@latest --project-isolation
 ```
 </details>
 
@@ -244,7 +244,7 @@ claude mcp add playwright npx -y @ai-coding-labs/playwright-mcp-plus@latest --pr
 
 #### 点击按钮安装：
 
-[![安装 MCP 服务器](https://cursor.com/deeplink/mcp-install-dark.svg)](https://cursor.com/install-mcp?name=playwright&config=eyJjb21tYW5kIjoibnB4IEBwbGF5d3JpZ2h0L21jcEBsYXRlc3QifQ%3D%3D)
+[![安装 MCP 服务器](https://cursor.com/deeplink/mcp-install-dark.svg)](https://cursor.com/install-mcp?name=playwright-plus&config=eyJjb21tYW5kIjoibnB4IEBwbGF5d3JpZ2h0L21jcEBsYXRlc3QifQ%3D%3D)
 
 #### 或手动安装：
 
@@ -264,7 +264,7 @@ claude mcp add playwright npx -y @ai-coding-labs/playwright-mcp-plus@latest --pr
 
 #### 点击按钮安装：
 
-[![在 Goose 中安装](https://block.github.io/goose/img/extension-install-dark.svg)](https://block.github.io/goose/extension?cmd=npx&arg=%40playwright%2Fmcp%40latest&id=playwright&name=Playwright&description=Interact%20with%20web%20pages%20through%20structured%20accessibility%20snapshots%20using%20Playwright)
+[![在 Goose 中安装](https://block.github.io/goose/img/extension-install-dark.svg)](https://block.github.io/goose/extension?cmd=npx&arg=%40playwright%2Fmcp%40latest&id=playwright-plus&name=Playwright&description=Interact%20with%20web%20pages%20through%20structured%20accessibility%20snapshots%20using%20Playwright)
 
 #### 或手动安装：
 
@@ -276,7 +276,7 @@ claude mcp add playwright npx -y @ai-coding-labs/playwright-mcp-plus@latest --pr
 
 #### 点击按钮安装：
 
-[![将 MCP 服务器 playwright 添加到 LM Studio](https://files.lmstudio.ai/deeplink/mcp-install-light.svg)](https://lmstudio.ai/install-mcp?name=playwright&config=eyJjb21tYW5kIjoibnB4IiwiYXJncyI6WyJAcGxheXdyaWdodC9tY3BAbGF0ZXN0Il19)
+[![将 MCP 服务器 playwright-plus 添加到 LM Studio](https://files.lmstudio.ai/deeplink/mcp-install-light.svg)](https://lmstudio.ai/install-mcp?name=playwright-plus&config=eyJjb21tYW5kIjoibnB4IiwiYXJncyI6WyJAcGxheXdyaWdodC9tY3BAbGF0ZXN0Il19)
 
 #### 或手动安装：
 
@@ -304,7 +304,7 @@ claude mcp add playwright npx -y @ai-coding-labs/playwright-mcp-plus@latest --pr
 
 ```bash
 # 对于 VS Code
-code --add-mcp '{"name":"playwright","command":"npx","args":["-y","@ai-coding-labs/playwright-mcp-plus@latest","--project-isolation"]}'
+code --add-mcp '{"name":"playwright-plus","command":"npx","args":["-y","@ai-coding-labs/playwright-mcp-plus@latest","--project-isolation"]}'
 ```
 
 安装后，Playwright MCP 服务器将可用于 VS Code 中的 GitHub Copilot 代理。
@@ -385,7 +385,7 @@ Playwright MCP 服务器支持以下参数。它们可以在上面的 JSON 配�
 ```js
 {
   "mcpServers": {
-    "playwright": {
+    "playwright-plus": {
       "command": "npx",
       "args": [
         "@ai-coding-labs/playwright-mcp-plus@latest",
@@ -407,7 +407,7 @@ Playwright MCP 服务器支持以下参数。它们可以在上面的 JSON 配�
 ```js
 {
   "mcpServers": {
-    "playwright": {
+    "playwright-plus": {
       "command": "npx",
       "args": ["@ai-coding-labs/playwright-mcp-plus@latest"]
     }
@@ -421,7 +421,7 @@ Playwright MCP 服务器支持以下参数。它们可以在上面的 JSON 配�
 ```js
 {
   "mcpServers": {
-    "playwright": {
+    "playwright-plus": {
       "command": "npx",
       "args": [
         "@ai-coding-labs/playwright-mcp-plus@latest",
@@ -443,7 +443,7 @@ Playwright MCP 服务器支持以下参数。它们可以在上面的 JSON 配�
 ```js
 {
   "mcpServers": {
-    "playwright": {
+    "playwright-plus": {
       "command": "npx",
       "args": [
         "@ai-coding-labs/playwright-mcp-plus@latest",
@@ -461,7 +461,7 @@ Playwright MCP 服务器支持以下参数。它们可以在上面的 JSON 配�
 ```js
 {
   "mcpServers": {
-    "playwright": {
+    "playwright-plus": {
       "command": "npx",
       "args": [
         "@ai-coding-labs/playwright-mcp-plus@latest",
@@ -603,7 +603,7 @@ npx @ai-coding-labs/playwright-mcp-plus@latest --port 8931
 ```js
 {
   "mcpServers": {
-    "playwright": {
+    "playwright-plus": {
       "url": "http://localhost:8931/mcp"
     }
   }
@@ -618,7 +618,7 @@ npx @ai-coding-labs/playwright-mcp-plus@latest --port 8931
 ```js
 {
   "mcpServers": {
-    "playwright": {
+    "playwright-plus": {
       "command": "docker",
       "args": ["run", "-i", "--rm", "--init", "--pull=always", "mcr.microsoft.com/playwright/mcp"]
     }
@@ -1096,7 +1096,7 @@ npx @ai-coding-labs/playwright-mcp-plus@latest --port 8931
 ```js
 {
   "mcpServers": {
-    "playwright": {
+    "playwright-plus": {
       "url": "http://localhost:8931/mcp"
     }
   }
@@ -1111,7 +1111,7 @@ npx @ai-coding-labs/playwright-mcp-plus@latest --port 8931
 ```js
 {
   "mcpServers": {
-    "playwright": {
+    "playwright-plus": {
       "command": "docker",
       "args": ["run", "-i", "--rm", "--init", "--pull=always", "mcr.microsoft.com/playwright/mcp"]
     }
