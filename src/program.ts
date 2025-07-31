@@ -25,6 +25,7 @@ import { runWithExtension } from './extension/main.js';
 import { BrowserServerBackend } from './browserServerBackend.js';
 import { Context } from './context.js';
 import { contextFactory } from './browserContextFactory.js';
+import { createEnhancedContextFactory } from './enhancedBrowserContextFactory.js';
 import { runLoopTools } from './loopTools/main.js';
 
 program
@@ -47,6 +48,9 @@ program
     .option('--no-sandbox', 'disable the sandbox for all process types that are normally sandboxed.')
     .option('--output-dir <path>', 'path to the directory for output files.')
     .option('--port <port>', 'port to listen on for SSE transport.')
+    .option('--project-isolation', 'enable project-level session isolation using project path from MCP context.')
+    .option('--project-isolation-session-strategy <strategy>', 'session directory strategy for project isolation: system, project, custom. Defaults to "system".', 'system')
+    .option('--project-isolation-session-root-dir <path>', 'custom root directory for session storage when using project isolation (only used with --project-isolation-session-strategy=custom).')
     .option('--proxy-bypass <bypass>', 'comma-separated domains to bypass proxy, for example ".com,chromium.org,.domain.com"')
     .option('--proxy-server <proxy>', 'specify proxy server, for example "http://myproxy:3128" or "socks5://myproxy:8080"')
     .option('--save-session', 'Whether to save the Playwright MCP session into the output directory.')
@@ -77,7 +81,7 @@ program
         return;
       }
 
-      const browserContextFactory = contextFactory(config.browser);
+      const browserContextFactory = createEnhancedContextFactory(config);
       const serverBackendFactory = () => new BrowserServerBackend(config, browserContextFactory);
       await mcpTransport.start(serverBackendFactory, config.server);
 

@@ -37,6 +37,9 @@ export type CLIOptions = {
   ignoreHttpsErrors?: boolean;
   isolated?: boolean;
   imageResponses?: 'allow' | 'omit';
+  projectIsolation?: boolean;
+  projectIsolationSessionStrategy?: 'system' | 'project' | 'custom';
+  projectIsolationSessionRootDir?: string;
   sandbox?: boolean;
   outputDir?: string;
   port?: number;
@@ -194,6 +197,9 @@ export function configFromCLIOptions(cliOptions: CLIOptions): Config {
     saveTrace: cliOptions.saveTrace,
     outputDir: cliOptions.outputDir,
     imageResponses: cliOptions.imageResponses,
+    projectIsolation: cliOptions.projectIsolation,
+    projectIsolationSessionStrategy: cliOptions.projectIsolationSessionStrategy,
+    projectIsolationSessionRootDir: cliOptions.projectIsolationSessionRootDir,
   };
 
   return result;

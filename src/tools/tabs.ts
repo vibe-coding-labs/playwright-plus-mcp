@@ -16,6 +16,7 @@
 
 import { z } from 'zod';
 import { defineTool } from './tool.js';
+import { projectIsolationSchema, validateProjectIsolationParams } from '../projectIsolation.js';
 
 const listTabs = defineTool({
   capability: 'core-tabs',
@@ -24,11 +25,24 @@ const listTabs = defineTool({
     name: 'browser_tab_list',
     title: 'List tabs',
     description: 'List browser tabs',
-    inputSchema: z.object({}),
+    inputSchema: z.object({}).merge(projectIsolationSchema),
     type: 'readOnly',
   },
 
   handle: async (context, params, response) => {
+    // 验证项目隔离参数
+    if (!validateProjectIsolationParams(params)) {
+      throw new Error('Both projectDrive and projectPath must be provided together, or neither should be provided.');
+    }
+
+    // 处理项目信息（仅在首次调用时）
+    if (params.projectDrive && params.projectPath) {
+      context.setProjectInfo({
+        projectDrive: params.projectDrive,
+        projectPath: params.projectPath,
+      });
+    }
+
     await context.ensureTab();
     response.setIncludeTabs();
   },
@@ -62,11 +76,24 @@ const newTab = defineTool({
     description: 'Open a new tab',
     inputSchema: z.object({
       url: z.string().optional().describe('The URL to navigate to in the new tab. If not provided, the new tab will be blank.'),
-    }),
+    }).merge(projectIsolationSchema),
     type: 'readOnly',
   },
 
   handle: async (context, params, response) => {
+    // 验证项目隔离参数
+    if (!validateProjectIsolationParams(params)) {
+      throw new Error('Both projectDrive and projectPath must be provided together, or neither should be provided.');
+    }
+
+    // 处理项目信息（仅在首次调用时）
+    if (params.projectDrive && params.projectPath) {
+      context.setProjectInfo({
+        projectDrive: params.projectDrive,
+        projectPath: params.projectPath,
+      });
+    }
+
     const tab = await context.newTab();
     if (params.url)
       await tab.navigate(params.url);

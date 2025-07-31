@@ -116,4 +116,24 @@ export type Config = {
    * Whether to send image responses to the client. Can be "allow", "omit", or "auto". Defaults to "auto", which sends images if the client can display them.
    */
   imageResponses?: 'allow' | 'omit';
+
+  /**
+   * Enable project-level session isolation using project path from MCP context.
+   * When enabled, creates separate browser sessions based on project directory.
+   */
+  projectIsolation?: boolean;
+
+  /**
+   * Session directory storage strategy for project isolation.
+   * - 'system': Store in system data directory with project identifier
+   * - 'project': Store in project directory (default)
+   * - 'custom': Store in custom root directory
+   */
+  projectIsolationSessionStrategy?: 'system' | 'project' | 'custom';
+
+  /**
+   * Custom root directory for session storage when using project isolation.
+   * Only used when projectIsolationSessionStrategy is 'custom'.
+   */
+  projectIsolationSessionRootDir?: string;
 };

@@ -19,6 +19,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { z } from 'zod';
 import { defineTool } from './tool.js';
+import { projectIsolationSchema, validateProjectIsolationParams } from '../projectIsolation.js';
 
 
 const install = defineTool({
@@ -27,11 +28,23 @@ const install = defineTool({
     name: 'browser_install',
     title: 'Install the browser specified in the config',
     description: 'Install the browser specified in the config. Call this if you get an error about the browser not being installed.',
-    inputSchema: z.object({}),
+    inputSchema: z.object({}).merge(projectIsolationSchema),
     type: 'destructive',
   },
 
   handle: async (context, params, response) => {
+    // 验证项目隔离参数
+    if (!validateProjectIsolationParams(params)) {
+      throw new Error('Both projectDrive and projectPath must be provided together, or neither should be provided.');
+    }
+
+    // 处理项目信息（仅在首次调用时） 
+    if (params.projectDrive && params.projectPath) {
+      context.setProjectInfo({
+        projectDrive: params.projectDrive,
+        projectPath: params.projectPath,
+      });
+    }
     const channel = context.config.browser?.launchOptions?.channel ?? context.config.browser?.browserName ?? 'chrome';
     const cliUrl = import.meta.resolve('playwright/package.json');
     const cliPath = path.join(fileURLToPath(cliUrl), '..', 'cli.js');

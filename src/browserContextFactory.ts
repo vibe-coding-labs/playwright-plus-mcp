@@ -22,8 +22,10 @@ import os from 'node:os';
 import * as playwright from 'playwright';
 
 import { logUnhandledError, testDebug } from './log.js';
+import { ProjectIsolationManager } from './projectIsolation.js';
 
 import type { FullConfig } from './config.js';
+import type { ProjectInfo } from './projectIsolation.js';
 
 export function contextFactory(browserConfig: FullConfig['browser']): BrowserContextFactory {
   if (browserConfig.remoteEndpoint)
@@ -36,7 +38,7 @@ export function contextFactory(browserConfig: FullConfig['browser']): BrowserCon
 }
 
 export interface BrowserContextFactory {
-  createContext(clientInfo: { name: string, version: string }): Promise<{ browserContext: playwright.BrowserContext, close: () => Promise<void> }>;
+  createContext(clientInfo: { name: string, version: string }, projectInfo?: ProjectInfo): Promise<{ browserContext: playwright.BrowserContext, close: () => Promise<void> }>;
 }
 
 class BaseContextFactory implements BrowserContextFactory {
@@ -155,10 +157,10 @@ class PersistentContextFactory implements BrowserContextFactory {
     this.browserConfig = browserConfig;
   }
 
-  async createContext(): Promise<{ browserContext: playwright.BrowserContext, close: () => Promise<void> }> {
+  async createContext(clientInfo?: { name: string, version: string }, projectInfo?: ProjectInfo): Promise<{ browserContext: playwright.BrowserContext, close: () => Promise<void> }> {
     await injectCdpPort(this.browserConfig);
     testDebug('create browser context (persistent)');
-    const userDataDir = this.browserConfig.userDataDir ?? await this._createUserDataDir();
+    const userDataDir = this.browserConfig.userDataDir ?? await this._createUserDataDir(projectInfo);
 
     this._userDataDirs.add(userDataDir);
     testDebug('lock user data dir', userDataDir);
@@ -196,7 +198,17 @@ class PersistentContextFactory implements BrowserContextFactory {
     testDebug('close browser context complete (persistent)');
   }
 
-  private async _createUserDataDir() {
+  private async _createUserDataDir(projectInfo?: ProjectInfo): Promise<string> {
+    // 如果提供了项目信息，使用项目隔离管理器
+    if (projectInfo?.projectPath && projectInfo?.projectDrive) {
+      const projectUserDataDir = ProjectIsolationManager.createUserDataDir(projectInfo);
+      if (projectUserDataDir) {
+        await ProjectIsolationManager.ensureProjectDataDir(projectUserDataDir);
+        return projectUserDataDir;
+      }
+    }
+    
+    // 否则使用默认逻辑
     let cacheDirectory: string;
     if (process.platform === 'linux')
       cacheDirectory = process.env.XDG_CACHE_HOME || path.join(os.homedir(), '.cache');

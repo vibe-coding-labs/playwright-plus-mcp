@@ -7,3 +7,6 @@ playwright-report/
 .DS_Store
 .env
 sessions/
+
+# Playwright MCP session data (auto-generated)
+.user-session-data-directory/

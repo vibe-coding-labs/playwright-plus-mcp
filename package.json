@@ -1,20 +1,28 @@
 {
-  "name": "@playwright/mcp",
+  "name": "@ai-coding-labs/playwright-mcp-plus",
   "version": "0.0.32",
-  "description": "Playwright Tools for MCP",
+  "description": "Enhanced Playwright Tools for MCP with Project Session Isolation",
   "type": "module",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/microsoft/playwright-mcp.git"
+    "url": "git+https://github.com/ai-coding-labs/playwright-plus-mcp.git"
   },
-  "homepage": "https://playwright.dev",
+  "homepage": "https://github.com/ai-coding-labs/playwright-plus-mcp",
   "engines": {
     "node": ">=18"
   },
   "author": {
-    "name": "Microsoft Corporation"
+    "name": "AI Coding Labs"
   },
   "license": "Apache-2.0",
+  "keywords": [
+    "playwright",
+    "mcp",
+    "model-context-protocol",
+    "browser-automation",
+    "project-isolation",
+    "session-management"
+  ],
   "scripts": {
     "build": "tsc",
     "lint": "npm run update-readme && eslint . && tsc --noEmit",

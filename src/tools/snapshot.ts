@@ -19,6 +19,7 @@ import { z } from 'zod';
 import { defineTabTool, defineTool } from './tool.js';
 import * as javascript from '../javascript.js';
 import { generateLocator } from './utils.js';
+import { projectIsolationSchema, validateProjectIsolationParams, validateProjectIsolationParamsWithConfig, getProjectIsolationErrorMessage } from '../projectIsolation.js';
 
 const snapshot = defineTool({
   capability: 'core',
@@ -26,11 +27,24 @@ const snapshot = defineTool({
     name: 'browser_snapshot',
     title: 'Page snapshot',
     description: 'Capture accessibility snapshot of the current page, this is better than screenshot',
-    inputSchema: z.object({}),
+    inputSchema: z.object({}).merge(projectIsolationSchema),
     type: 'readOnly',
   },
 
   handle: async (context, params, response) => {
+    // 验证项目隔离参数
+    if (!validateProjectIsolationParamsWithConfig(params, !!context.config.projectIsolation)) {
+      throw new Error(getProjectIsolationErrorMessage(!!context.config.projectIsolation));
+    }
+
+    // 处理项目信息（仅在首次调用时）
+    if (params.projectDrive && params.projectPath) {
+      context.setProjectInfo({
+        projectDrive: params.projectDrive,
+        projectPath: params.projectPath,
+      });
+    }
+
     await context.ensureTab();
     response.setIncludeSnapshot();
   },

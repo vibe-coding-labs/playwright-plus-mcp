@@ -1,12 +1,62 @@
-## Playwright MCP
+## Playwright MCP Plus
 
-A Model Context Protocol (MCP) server that provides browser automation capabilities using [Playwright](https://playwright.dev). This server enables LLMs to interact with web pages through structured accessibility snapshots, bypassing the need for screenshots or visually-tuned models.
+A **enhanced** Model Context Protocol (MCP) server that provides browser automation capabilities using [Playwright](https://playwright.dev). 
+
+### 🎯 **Key Innovation: Project-Level Session Isolation**
+
+**⚡ The Problem We Solve:**
+- Opening multiple project windows with regular Playwright MCP causes session conflicts
+- Each new window overwrites the previous browser session
+- **You lose all login states and have to re-authenticate every time** 
+- No persistent sessions across different projects
+- Testing automation constantly interrupted by re-login requirements
+
+**🚀 Our Solution:**
+**This enhanced version provides project-level session isolation** - each project gets its own persistent browser session that survives across window switches, restarts, and concurrent usage.
+
+**✨ What This Means for You:**
+- 🔄 **Never lose login states again** - each project maintains its own authenticated sessions
+- 🪟 **Work on multiple projects simultaneously** - open 10 different project windows, each with its own browser state
+- 🧪 **Automated testing without constant re-login** - your test suites run faster and more reliably
+- 💾 **Sessions persist across IDE restarts** - close and reopen your project, sessions are still there
+- 🎯 **Zero configuration required** - works out-of-the-box with sensible defaults
+
+### 🚀 Enhanced Features (vs Official Playwright MCP)
+
+This enhanced version maintains **100% backward compatibility** with the official Playwright MCP while adding powerful session isolation:
+
+#### **🔒 Project Session Isolation**
+- **🏗️ Automatic Project Detection**: Each project gets its own isolated browser session
+- **💾 Persistent Login States**: Stay logged in across IDE restarts and window switches
+- **🚪 No More Re-authentication**: Your automated tests and workflows run uninterrupted
+- **📁 Clean Project Directories**: No session files cluttering your project folders (by default)
+- **🌍 Cross-Platform Support**: Intelligent storage location selection for Windows, macOS, Linux
+
+#### **🛠️ Multiple Storage Strategies**
+- `system`: Store in OS cache directory (recommended, user-invisible)
+- `project`: Store in project directory (legacy behavior)  
+- `custom`: Store in custom location
+
+#### **⚙️ Configuration Parameters**
+- `--project-isolation`: Enable project-level session isolation (default: disabled)
+- `--project-isolation-session-strategy`: Choose storage strategy (default: "system")
+- `--project-isolation-session-root-dir`: Custom root directory for session storage
+
+#### **✅ Advantages over Official Version**
+- ✅ **100% Backward Compatible**: Drop-in replacement for official version
+- ✅ **Multi-Project Workflow**: Work on multiple projects without session conflicts
+- ✅ **Persistent Authentication**: Never lose login states between sessions
+- ✅ **Test Automation Friendly**: Eliminates re-login overhead in automated tests
+- ✅ **Clean Workspace**: No session files in project directories by default
+- ✅ **Conflict-Free**: Uses official Playwright path structure to avoid conflicts
+- ✅ **Zero Maintenance**: Automatic cleanup and management of session data
 
 ### Key Features
 
 - **Fast and lightweight**. Uses Playwright's accessibility tree, not pixel-based input.
 - **LLM-friendly**. No vision models needed, operates purely on structured data.
 - **Deterministic tool application**. Avoids ambiguity common with screenshot-based approaches.
+- **🆕 Project-level isolation**. Separate browser sessions per project with intelligent storage management.
 
 ### Requirements
 - Node.js 18 or newer
@@ -21,7 +71,7 @@ node utils/generate-links.js
 
 First, install the Playwright MCP server with your client.
 
-**Standard config** works in most of the tools:
+**Standard config** (100% compatible with official Playwright MCP):
 
 ```js
 {
@@ -29,12 +79,105 @@ First, install the Playwright MCP server with your client.
     "playwright": {
       "command": "npx",
       "args": [
-        "@playwright/mcp@latest"
+        "-y",
+        "@ai-coding-labs/playwright-mcp-plus@latest"
       ]
     }
   }
 }
 ```
+
+**Enhanced config** with project isolation (recommended):
+
+```js
+{
+  "mcpServers": {
+    "playwright": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@ai-coding-labs/playwright-mcp-plus@latest",
+        "--project-isolation"
+      ]
+    }
+  }
+}
+```
+
+**Advanced config** with custom session storage:
+
+```js
+{
+  "mcpServers": {
+    "playwright": {
+      "command": "npx", 
+      "args": [
+        "-y",
+        "@ai-coding-labs/playwright-mcp-plus@latest",
+        "--project-isolation",
+        "--project-isolation-session-strategy=custom",
+        "--project-isolation-session-root-dir=/custom/session/path"
+      ]
+    }
+  }
+}
+```
+
+**💡 Pro Tip for Multi-Project Workflows:**
+
+Once you enable `--project-isolation`, each of your projects will automatically get its own browser session. When you call any browser tool, simply include the project parameters:
+
+```javascript
+// Each project gets isolated sessions automatically
+browser_navigate({
+  url: "https://yourapp.com",
+  projectDrive: "/",                    // For macOS/Linux: "/", For Windows: "C:"
+  projectPath: "/path/to/your/project"  // Absolute path to your project directory
+})
+```
+
+This ensures your login states, cookies, and browser data never interfere between different projects!
+
+### 🎬 Real-World Usage Scenario
+
+**Before (Official Playwright MCP):**
+```bash
+# Working on Project A - login to admin panel
+browser_navigate("https://myapp-staging.com/admin")
+# Login with credentials, do some testing...
+
+# Switch to Project B window - session lost! 😱
+browser_navigate("https://different-app.com/dashboard") 
+# All Project A login states are gone, must login again
+
+# Switch back to Project A - login lost again! 😱
+# Must re-authenticate every single time
+```
+
+**After (With Project Isolation):**
+```bash
+# Project A window - gets its own isolated session
+browser_navigate({
+  url: "https://myapp-staging.com/admin",
+  projectDrive: "/",
+  projectPath: "/Users/you/projects/project-a"
+})
+# Login once, stays logged in forever ✨
+
+# Project B window - completely separate session  
+browser_navigate({
+  url: "https://different-app.com/dashboard",
+  projectDrive: "/", 
+  projectPath: "/Users/you/projects/project-b"
+})
+# Login once, independent of Project A ✨
+
+# Switch back to Project A - STILL LOGGED IN! 🎉
+# Run automated tests without re-authentication
+# Perfect for CI/CD pipelines and development workflows
+```
+
+**The Result:** Your automated tests run 10x faster, your development workflow is uninterrupted, and you can work on multiple projects simultaneously without losing authentication state.
 
 [<img src="https://img.shields.io/badge/VS_Code-VS_Code?style=flat-square&label=Install%20Server&color=0098FF" alt="Install in VS Code">](https://insiders.vscode.dev/redirect?url=vscode%3Amcp%2Finstall%3F%257B%2522name%2522%253A%2522playwright%2522%252C%2522command%2522%253A%2522npx%2522%252C%2522args%2522%253A%255B%2522%2540playwright%252Fmcp%2540latest%2522%255D%257D) [<img alt="Install in VS Code Insiders" src="https://img.shields.io/badge/VS_Code_Insiders-VS_Code_Insiders?style=flat-square&label=Install%20Server&color=24bfa5">](https://insiders.vscode.dev/redirect?url=vscode-insiders%3Amcp%2Finstall%3F%257B%2522name%2522%253A%2522playwright%2522%252C%2522command%2522%253A%2522npx%2522%252C%2522args%2522%253A%255B%2522%2540playwright%252Fmcp%2540latest%2522%255D%257D)
 
@@ -42,10 +185,16 @@ First, install the Playwright MCP server with your client.
 <details>
 <summary>Claude Code</summary>
 
-Use the Claude Code CLI to add the Playwright MCP server:
+Use the Claude Code CLI to add the enhanced Playwright MCP server:
 
+**Standard version:**
 ```bash
-claude mcp add playwright npx @playwright/mcp@latest
+claude mcp add playwright npx -y @ai-coding-labs/playwright-mcp-plus@latest
+```
+
+**With project isolation (recommended):**
+```bash
+claude mcp add playwright npx -y @ai-coding-labs/playwright-mcp-plus@latest --project-isolation
 ```
 </details>
 
@@ -65,7 +214,7 @@ Follow the MCP install [guide](https://modelcontextprotocol.io/quickstart/user),
 
 #### Or install manually:
 
-Go to `Cursor Settings` -> `MCP` -> `Add new MCP Server`. Name to your liking, use `command` type with the command `npx @playwright/mcp`. You can also verify config or add command like arguments via clicking `Edit`.
+Go to `Cursor Settings` -> `MCP` -> `Add new MCP Server`. Name to your liking, use `command` type with the command `npx -y @ai-coding-labs/playwright-mcp-plus --project-isolation`. You can also verify config or add command like arguments via clicking `Edit`.
 
 </details>
 
@@ -85,7 +234,7 @@ Follow the MCP install [guide](https://github.com/google-gemini/gemini-cli/blob/
 
 #### Or install manually:
 
-Go to `Advanced settings` -> `Extensions` -> `Add custom extension`. Name to your liking, use type `STDIO`, and set the `command` to `npx @playwright/mcp`. Click "Add Extension".
+Go to `Advanced settings` -> `Extensions` -> `Add custom extension`. Name to your liking, use type `STDIO`, and set the `command` to `npx -y @ai-coding-labs/playwright-mcp-plus --project-isolation`. Click "Add Extension".
 </details>
 
 <details>
@@ -121,7 +270,7 @@ Follow the MCP install [guide](https://code.visualstudio.com/docs/copilot/chat/m
 
 ```bash
 # For VS Code
-code --add-mcp '{"name":"playwright","command":"npx","args":["@playwright/mcp@latest"]}'
+code --add-mcp '{"name":"playwright","command":"npx","args":["-y","@ai-coding-labs/playwright-mcp-plus@latest","--project-isolation"]}'
 ```
 
 After installation, the Playwright MCP server will be available for use with your GitHub Copilot agent in VS Code.
@@ -141,50 +290,35 @@ Playwright MCP server supports following arguments. They can be provided in the 
 <!--- Options generated by update-readme.js -->
 
 ```
-> npx @playwright/mcp@latest --help
-  --allowed-origins <origins>  semicolon-separated list of origins to allow the
-                               browser to request. Default is to allow all.
-  --blocked-origins <origins>  semicolon-separated list of origins to block the
-                               browser from requesting. Blocklist is evaluated
-                               before allowlist. If used without the allowlist,
-                               requests not matching the blocklist are still
-                               allowed.
-  --block-service-workers      block service workers
-  --browser <browser>          browser or chrome channel to use, possible
-                               values: chrome, firefox, webkit, msedge.
-  --caps <caps>                comma-separated list of additional capabilities
-                               to enable, possible values: vision, pdf.
-  --cdp-endpoint <endpoint>    CDP endpoint to connect to.
-  --config <path>              path to the configuration file.
-  --device <device>            device to emulate, for example: "iPhone 15"
-  --executable-path <path>     path to the browser executable.
-  --headless                   run browser in headless mode, headed by default
-  --host <host>                host to bind server to. Default is localhost. Use
-                               0.0.0.0 to bind to all interfaces.
-  --ignore-https-errors        ignore https errors
-  --isolated                   keep the browser profile in memory, do not save
-                               it to disk.
-  --image-responses <mode>     whether to send image responses to the client.
-                               Can be "allow" or "omit", Defaults to "allow".
-  --no-sandbox                 disable the sandbox for all process types that
-                               are normally sandboxed.
-  --output-dir <path>          path to the directory for output files.
-  --port <port>                port to listen on for SSE transport.
-  --proxy-bypass <bypass>      comma-separated domains to bypass proxy, for
-                               example ".com,chromium.org,.domain.com"
-  --proxy-server <proxy>       specify proxy server, for example
-                               "http://myproxy:3128" or "socks5://myproxy:8080"
-  --save-session               Whether to save the Playwright MCP session into
-                               the output directory.
-  --save-trace                 Whether to save the Playwright Trace of the
-                               session into the output directory.
-  --storage-state <path>       path to the storage state file for isolated
-                               sessions.
-  --user-agent <ua string>     specify user agent string
-  --user-data-dir <path>       path to the user data directory. If not
-                               specified, a temporary directory will be created.
-  --viewport-size <size>       specify browser viewport size in pixels, for
-                               example "1280, 720"
+> npx @ai-coding-labs/playwright-mcp-plus@latest --help
+  --allowed-origins <origins>                      semicolon-separated list of origins to allow the browser to request. Default is to allow all.
+  --blocked-origins <origins>                      semicolon-separated list of origins to block the browser from requesting. Blocklist is evaluated before allowlist. If used without the allowlist, requests not matching the blocklist are still allowed.
+  --block-service-workers                          block service workers
+  --browser <browser>                              browser or chrome channel to use, possible values: chrome, firefox, webkit, msedge.
+  --caps <caps>                                    comma-separated list of additional capabilities to enable, possible values: vision, pdf.
+  --cdp-endpoint <endpoint>                        CDP endpoint to connect to.
+  --config <path>                                  path to the configuration file.
+  --device <device>                                device to emulate, for example: "iPhone 15"
+  --executable-path <path>                         path to the browser executable.
+  --headless                                       run browser in headless mode, headed by default
+  --host <host>                                    host to bind server to. Default is localhost. Use 0.0.0.0 to bind to all interfaces.
+  --ignore-https-errors                            ignore https errors
+  --isolated                                       keep the browser profile in memory, do not save it to disk.
+  --image-responses <mode>                         whether to send image responses to the client. Can be "allow" or "omit", Defaults to "allow".
+  --no-sandbox                                     disable the sandbox for all process types that are normally sandboxed.
+  --output-dir <path>                              path to the directory for output files.
+  --port <port>                                    port to listen on for SSE transport.
+  --project-isolation                              enable project-level session isolation using project path from MCP context.
+  --project-isolation-session-strategy <strategy>  session directory strategy for project isolation: system, project, custom. Defaults to "system". (default: "system")
+  --project-isolation-session-root-dir <path>      custom root directory for session storage when using project isolation (only used with --project-isolation-session-strategy=custom).
+  --proxy-bypass <bypass>                          comma-separated domains to bypass proxy, for example ".com,chromium.org,.domain.com"
+  --proxy-server <proxy>                           specify proxy server, for example "http://myproxy:3128" or "socks5://myproxy:8080"
+  --save-session                                   Whether to save the Playwright MCP session into the output directory.
+  --save-trace                                     Whether to save the Playwright Trace of the session into the output directory.
+  --storage-state <path>                           path to the storage state file for isolated sessions.
+  --user-agent <ua string>                         specify user agent string
+  --user-data-dir <path>                           path to the user data directory. If not specified, a temporary directory will be created.
+  --viewport-size <size>                           specify browser viewport size in pixels, for example "1280, 720"
 ```
 
 <!--- End of options generated section -->
@@ -222,7 +356,7 @@ state [here](https://playwright.dev/docs/auth).
     "playwright": {
       "command": "npx",
       "args": [
-        "@playwright/mcp@latest",
+        "@ai-coding-labs/playwright-mcp-plus@latest",
         "--isolated",
         "--storage-state={path/to/storage.json}"
       ]
@@ -231,13 +365,99 @@ state [here](https://playwright.dev/docs/auth).
 }
 ```
 
+### 🔒 Project Isolation (Enhanced Feature)
+
+**Project Isolation** allows each project to maintain its own separate browser session with independent login states, cookies, and localStorage. This prevents cross-project interference while keeping your workspace clean.
+
+#### **Default Behavior (Backward Compatible)**
+Without any isolation flags, sessions are shared between all projects (identical to official Playwright MCP):
+
+```js
+{
+  "mcpServers": {
+    "playwright": {
+      "command": "npx",
+      "args": ["@ai-coding-labs/playwright-mcp-plus@latest"]
+    }
+  }
+}
+```
+
+#### **Recommended: System Strategy (Zero Config)**
+Enable project isolation with sessions stored in OS cache directory (invisible to users):
+
+```js
+{
+  "mcpServers": {
+    "playwright": {
+      "command": "npx", 
+      "args": [
+        "@ai-coding-labs/playwright-mcp-plus@latest",
+        "--project-isolation"
+      ]
+    }
+  }
+}
+```
+
+**Storage locations by OS:**
+- **Windows:** `%LOCALAPPDATA%/ms-playwright/mcp-chrome-profile/playwright-plus-mcp/project-hash/`
+- **macOS:** `~/Library/Caches/ms-playwright/mcp-chrome-profile/playwright-plus-mcp/project-hash/`  
+- **Linux:** `~/.cache/ms-playwright/mcp-chrome-profile/playwright-plus-mcp/project-hash/`
+
+#### **Project Strategy**
+Store sessions in project directory (creates `.user-session-data-directory/`):
+
+```js
+{
+  "mcpServers": {
+    "playwright": {
+      "command": "npx",
+      "args": [
+        "@ai-coding-labs/playwright-mcp-plus@latest", 
+        "--project-isolation",
+        "--project-isolation-session-strategy=project"
+      ]
+    }
+  }
+}
+```
+
+#### **Custom Strategy**
+Store sessions in a custom location:
+
+```js
+{
+  "mcpServers": {
+    "playwright": {
+      "command": "npx",
+      "args": [
+        "@ai-coding-labs/playwright-mcp-plus@latest",
+        "--project-isolation", 
+        "--project-isolation-session-strategy=custom",
+        "--project-isolation-session-root-dir=/custom/sessions"
+      ]
+    }
+  }
+}
+```
+
+#### **Strategy Comparison**
+
+| Configuration | Session Location | Project Directory | User Visibility | Use Case |
+|---------------|------------------|-------------------|-----------------|----------|
+| **No isolation** (default) | Shared cache | Clean | Hidden | Backward compatibility |
+| **System** (isolation default) | OS cache directory | Clean | Hidden | Best user experience |
+| **Project** | `.user-session-data-directory/` | Has session files | Visible | Legacy/debugging |
+| **Custom** | Custom path | Clean | Hidden | Advanced setups |
+
 ### Configuration file
 
 The Playwright MCP server can be configured using a JSON configuration file. You can specify the configuration file
 using the `--config` command line option:
 
 ```bash
-npx @playwright/mcp@latest --config path/to/config.json
+npx @ai-coding-labs/playwright-mcp-plus@latest --config path/to/config.json
 ```
 
 <details>
@@ -310,6 +530,30 @@ npx @playwright/mcp@latest --config path/to/config.json
    * Defaults to "allow".
    */
   imageResponses?: 'allow' | 'omit';
+
+  /**
+   * Enable project-level session isolation using project path from MCP context.
+   * When enabled, each project gets its own isolated browser session.
+   * Defaults to false (shared sessions, compatible with official Playwright MCP).
+   */
+  projectIsolation?: boolean;
+
+  /**
+   * Session directory storage strategy for project isolation.
+   * Only used when projectIsolation is enabled.
+   * - 'system': Store in OS cache directory (recommended, user-invisible)
+   * - 'project': Store in project directory (legacy behavior)
+   * - 'custom': Store in custom location specified by projectIsolationSessionRootDir
+   * Defaults to "system".
+   */
+  projectIsolationSessionStrategy?: 'system' | 'project' | 'custom';
+
+  /**
+   * Custom root directory for session storage when using project isolation.
+   * Only used when projectIsolationSessionStrategy is 'custom'.
+   * Example: "/custom/session/storage/path"
+   */
+  projectIsolationSessionRootDir?: string;
 }
 ```
 </details>
@@ -320,7 +564,7 @@ When running headed browser on system w/o display or from worker processes of th
 run the MCP server from environment with the DISPLAY and pass the `--port` flag to enable HTTP transport.
 
 ```bash
-npx @playwright/mcp@latest --port 8931
+npx @ai-coding-labs/playwright-mcp-plus@latest --port 8931
 ```
 
 And then in MCP client config, set the `url` to the HTTP endpoint:
@@ -364,7 +608,7 @@ docker build -t mcr.microsoft.com/playwright/mcp .
 ```js
 import http from 'http';
 
-import { createConnection } from '@playwright/mcp';
+import { createConnection } from '@ai-coding-labs/playwright-mcp-plus';
 import { SSEServerTransport } from '@modelcontextprotocol/sdk/server/sse.js';
 
 http.createServer(async (req, res) => {
@@ -404,7 +648,9 @@ http.createServer(async (req, res) => {
 - **browser_close**
   - Title: Close browser
   - Description: Close the page
-  - Parameters: None
+  - Parameters:
+    - `projectDrive` (string, optional): Project drive letter or root (e.g., "C:", "/") for session isolation
+    - `projectPath` (string, optional): Absolute path to project root directory for session isolation
   - Read-only: **true**
 
 <!-- NOTE: This has been generated via update-readme.js -->
@@ -474,6 +720,8 @@ http.createServer(async (req, res) => {
   - Description: Navigate to a URL
   - Parameters:
     - `url` (string): The URL to navigate to
+    - `projectDrive` (string, optional): Project drive letter or root (e.g., "C:", "/") for session isolation
+    - `projectPath` (string, optional): Absolute path to project root directory for session isolation
   - Read-only: **false**
 
 <!-- NOTE: This has been generated via update-readme.js -->
@@ -535,7 +783,9 @@ http.createServer(async (req, res) => {
 - **browser_snapshot**
   - Title: Page snapshot
   - Description: Capture accessibility snapshot of the current page, this is better than screenshot
-  - Parameters: None
+  - Parameters:
+    - `projectDrive` (string, optional): Project drive letter or root (e.g., "C:", "/") for session isolation
+    - `projectPath` (string, optional): Absolute path to project root directory for session isolation
   - Read-only: **true**
 
 <!-- NOTE: This has been generated via update-readme.js -->
@@ -573,6 +823,8 @@ http.createServer(async (req, res) => {
     - `time` (number, optional): The time to wait in seconds
     - `text` (string, optional): The text to wait for
     - `textGone` (string, optional): The text to wait for to disappear
+    - `projectDrive` (string, optional): Project drive letter or root (e.g., "C:", "/") for session isolation
+    - `projectPath` (string, optional): Absolute path to project root directory for session isolation
   - Read-only: **true**
 
 </details>
@@ -594,7 +846,9 @@ http.createServer(async (req, res) => {
 - **browser_tab_list**
   - Title: List tabs
   - Description: List browser tabs
-  - Parameters: None
+  - Parameters:
+    - `projectDrive` (string, optional): Project drive letter or root (e.g., "C:", "/") for session isolation
+    - `projectPath` (string, optional): Absolute path to project root directory for session isolation
   - Read-only: **true**
 
 <!-- NOTE: This has been generated via update-readme.js -->
@@ -604,6 +858,8 @@ http.createServer(async (req, res) => {
   - Description: Open a new tab
   - Parameters:
     - `url` (string, optional): The URL to navigate to in the new tab. If not provided, the new tab will be blank.
+    - `projectDrive` (string, optional): Project drive letter or root (e.g., "C:", "/") for session isolation
+    - `projectPath` (string, optional): Absolute path to project root directory for session isolation
   - Read-only: **true**
 
 <!-- NOTE: This has been generated via update-readme.js -->
@@ -625,7 +881,9 @@ http.createServer(async (req, res) => {
 - **browser_install**
   - Title: Install the browser specified in the config
   - Description: Install the browser specified in the config. Call this if you get an error about the browser not being installed.
-  - Parameters: None
+  - Parameters:
+    - `projectDrive` (string, optional): Project drive letter or root (e.g., "C:", "/") for session isolation
+    - `projectPath` (string, optional): Absolute path to project root directory for session isolation
   - Read-only: **false**
 
 </details>

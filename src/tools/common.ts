@@ -16,6 +16,7 @@
 
 import { z } from 'zod';
 import { defineTabTool, defineTool } from './tool.js';
+import { projectIsolationSchema, validateProjectIsolationParams } from '../projectIsolation.js';
 
 const close = defineTool({
   capability: 'core',
@@ -24,11 +25,24 @@ const close = defineTool({
     name: 'browser_close',
     title: 'Close browser',
     description: 'Close the page',
-    inputSchema: z.object({}),
+    inputSchema: z.object({}).merge(projectIsolationSchema),
     type: 'readOnly',
   },
 
   handle: async (context, params, response) => {
+    // 验证项目隔离参数
+    if (!validateProjectIsolationParams(params)) {
+      throw new Error('Both projectDrive and projectPath must be provided together, or neither should be provided.');
+    }
+
+    // 处理项目信息（仅在首次调用时）
+    if (params.projectDrive && params.projectPath) {
+      context.setProjectInfo({
+        projectDrive: params.projectDrive,
+        projectPath: params.projectPath,
+      });
+    }
+
     await context.closeBrowserContext();
     response.setIncludeTabs();
     response.addCode(`await page.close()`);

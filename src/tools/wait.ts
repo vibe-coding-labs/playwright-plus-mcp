@@ -16,6 +16,7 @@
 
 import { z } from 'zod';
 import { defineTool } from './tool.js';
+import { projectIsolationSchema, validateProjectIsolationParams } from '../projectIsolation.js';
 
 const wait = defineTool({
   capability: 'core',
@@ -28,11 +29,24 @@ const wait = defineTool({
       time: z.number().optional().describe('The time to wait in seconds'),
       text: z.string().optional().describe('The text to wait for'),
       textGone: z.string().optional().describe('The text to wait for to disappear'),
-    }),
+    }).merge(projectIsolationSchema),
     type: 'readOnly',
   },
 
   handle: async (context, params, response) => {
+    // 验证项目隔离参数
+    if (!validateProjectIsolationParams(params)) {
+      throw new Error('Both projectDrive and projectPath must be provided together, or neither should be provided.');
+    }
+
+    // 处理项目信息（仅在首次调用时）
+    if (params.projectDrive && params.projectPath) {
+      context.setProjectInfo({
+        projectDrive: params.projectDrive,
+        projectPath: params.projectPath,
+      });
+    }
+
     if (!params.text && !params.textGone && !params.time)
       throw new Error('Either time, text or textGone must be provided');
 

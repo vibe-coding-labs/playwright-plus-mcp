@@ -25,6 +25,7 @@ import type { FullConfig } from './config.js';
 import type { BrowserContextFactory } from './browserContextFactory.js';
 import type * as actions from './actions.js';
 import type { Action, SessionLog } from './sessionLog.js';
+import type { ProjectInfo } from './projectIsolation.js';
 
 const testDebug = debug('pw:mcp:test');
 
@@ -35,6 +36,7 @@ export class Context {
   private _browserContextFactory: BrowserContextFactory;
   private _tabs: Tab[] = [];
   private _currentTab: Tab | undefined;
+  private _projectInfo?: ProjectInfo;
 
   clientVersion: { name: string; version: string; } | undefined;
 
@@ -54,6 +56,16 @@ export class Context {
 
   static async disposeAll() {
     await Promise.all([...Context._allContexts].map(context => context.dispose()));
+  }
+
+  setProjectInfo(projectInfo: ProjectInfo): void {
+    if (!this._projectInfo && (projectInfo.projectDrive || projectInfo.projectPath)) {
+      this._projectInfo = projectInfo;
+    }
+  }
+
+  getProjectInfo(): ProjectInfo | undefined {
+    return this._projectInfo;
   }
 
   tabs(): Tab[] {
@@ -205,7 +217,7 @@ export class Context {
     if (this._closeBrowserContextPromise)
       throw new Error('Another browser context is being closed.');
     // TODO: move to the browser context factory to make it based on isolation mode.
-    const result = await this._browserContextFactory.createContext(this.clientVersion!);
+    const result = await this._browserContextFactory.createContext(this.clientVersion!, this._projectInfo);
     const { browserContext } = result;
     await this._setupRequestInterception(browserContext);
     if (this._sessionLog)

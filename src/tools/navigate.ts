@@ -16,6 +16,7 @@
 
 import { z } from 'zod';
 import { defineTool, defineTabTool } from './tool.js';
+import { projectIsolationSchema, validateProjectIsolationParams, validateProjectIsolationParamsWithConfig, getProjectIsolationErrorMessage } from '../projectIsolation.js';
 
 const navigate = defineTool({
   capability: 'core',
@@ -26,11 +27,24 @@ const navigate = defineTool({
     description: 'Navigate to a URL',
     inputSchema: z.object({
       url: z.string().describe('The URL to navigate to'),
-    }),
+    }).merge(projectIsolationSchema),
     type: 'destructive',
   },
 
   handle: async (context, params, response) => {
+    // 验证项目隔离参数
+    if (!validateProjectIsolationParamsWithConfig(params, !!context.config.projectIsolation)) {
+      throw new Error(getProjectIsolationErrorMessage(!!context.config.projectIsolation));
+    }
+
+    // 处理项目信息（仅在首次调用时）
+    if (params.projectDrive && params.projectPath) {
+      context.setProjectInfo({
+        projectDrive: params.projectDrive,
+        projectPath: params.projectPath,
+      });
+    }
+
     const tab = await context.ensureTab();
     await tab.navigate(params.url);
 
