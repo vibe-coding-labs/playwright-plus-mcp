@@ -4,15 +4,17 @@
 > Tired of constantly re-logging in? Watch how frustrating it is when your browser sessions keep getting lost...
 
 **📹 Demo Video:**
+> **点击GIF图片在新页面观看高清MP4视频**
 
-![Before: Constant Re-login Frustration](docs/images/before-use-playwright-plus-mcp.gif)
+[![Before: Constant Re-login Frustration](docs/images/before-use-playwright-plus-mcp.gif)](https://github.com/ai-coding-labs/playwright-plus-mcp/raw/main/docs/images/before-use-playwright-plus-mcp.mp4)
 
 #### 🚀 With Playwright Plus MCP
 > Experience the magic of persistent sessions! Multiple projects, multiple windows, all sessions preserved perfectly...
 
 **📹 Demo Video:**
+> **点击GIF图片在新页面观看高清MP4视频**
 
-![After: Smooth Persistent Sessions](docs/images/after-use-playwright-plus-mcp.gif)
+[![After: Smooth Persistent Sessions](docs/images/after-use-playwright-plus-mcp.gif)](https://github.com/ai-coding-labs/playwright-plus-mcp/raw/main/docs/images/after-use-playwright-plus-mcp.mp4)
 
 > **💡 Note:** The videos demonstrate the dramatic difference in user experience between the standard Playwright MCP and our enhanced version with project isolation.
 
