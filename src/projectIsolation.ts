@@ -36,6 +36,24 @@ export const projectIsolationSchema = z.object({
 });
 
 /**
+ * 项目隔离参数的属性定义（用于避免使用.merge()导致的allOf问题）
+ */
+export const projectIsolationProperties = {
+  projectDrive: z.string().optional().describe('Project drive letter or root (e.g., "C:", "/") for session isolation'),
+  projectPath: z.string().optional().describe('Absolute path to project root directory for session isolation'),
+} as const;
+
+/**
+ * 创建包含项目隔离参数的schema，避免使用.merge()导致的allOf问题
+ */
+export function createSchemaWithProjectIsolation<T extends Record<string, any>>(baseProperties: T) {
+  return z.object({
+    ...baseProperties,
+    ...projectIsolationProperties,
+  });
+}
+
+/**
  * 验证项目隔离参数
  */
 export function validateProjectIsolationParams(params: any): boolean {

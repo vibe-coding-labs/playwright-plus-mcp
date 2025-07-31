@@ -16,7 +16,7 @@
 
 import { z } from 'zod';
 import { defineTool } from './tool.js';
-import { projectIsolationSchema, validateProjectIsolationParams } from '../projectIsolation.js';
+import { createSchemaWithProjectIsolation, validateProjectIsolationParams } from '../projectIsolation.js';
 
 const wait = defineTool({
   capability: 'core',
@@ -25,11 +25,11 @@ const wait = defineTool({
     name: 'browser_wait_for',
     title: 'Wait for',
     description: 'Wait for text to appear or disappear or a specified time to pass',
-    inputSchema: z.object({
+    inputSchema: createSchemaWithProjectIsolation({
       time: z.number().optional().describe('The time to wait in seconds'),
       text: z.string().optional().describe('The text to wait for'),
       textGone: z.string().optional().describe('The text to wait for to disappear'),
-    }).merge(projectIsolationSchema),
+    }),
     type: 'readOnly',
   },
 

@@ -16,7 +16,7 @@
 
 import { z } from 'zod';
 import { defineTool, defineTabTool } from './tool.js';
-import { projectIsolationSchema, validateProjectIsolationParams, validateProjectIsolationParamsWithConfig, getProjectIsolationErrorMessage } from '../projectIsolation.js';
+import { createSchemaWithProjectIsolation, validateProjectIsolationParams, validateProjectIsolationParamsWithConfig, getProjectIsolationErrorMessage } from '../projectIsolation.js';
 
 const navigate = defineTool({
   capability: 'core',
@@ -25,9 +25,9 @@ const navigate = defineTool({
     name: 'browser_navigate',
     title: 'Navigate to a URL',
     description: 'Navigate to a URL',
-    inputSchema: z.object({
+    inputSchema: createSchemaWithProjectIsolation({
       url: z.string().describe('The URL to navigate to'),
-    }).merge(projectIsolationSchema),
+    }),
     type: 'destructive',
   },
 

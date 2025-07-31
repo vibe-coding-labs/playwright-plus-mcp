@@ -16,7 +16,7 @@
 
 import { z } from 'zod';
 import { defineTabTool, defineTool } from './tool.js';
-import { projectIsolationSchema, validateProjectIsolationParams } from '../projectIsolation.js';
+import { createSchemaWithProjectIsolation, validateProjectIsolationParams } from '../projectIsolation.js';
 
 const close = defineTool({
   capability: 'core',
@@ -25,7 +25,7 @@ const close = defineTool({
     name: 'browser_close',
     title: 'Close browser',
     description: 'Close the page',
-    inputSchema: z.object({}).merge(projectIsolationSchema),
+    inputSchema: createSchemaWithProjectIsolation({}),
     type: 'readOnly',
   },
 

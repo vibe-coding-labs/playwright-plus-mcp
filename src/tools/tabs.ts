@@ -16,7 +16,7 @@
 
 import { z } from 'zod';
 import { defineTool } from './tool.js';
-import { projectIsolationSchema, validateProjectIsolationParams } from '../projectIsolation.js';
+import { createSchemaWithProjectIsolation, validateProjectIsolationParams } from '../projectIsolation.js';
 
 const listTabs = defineTool({
   capability: 'core-tabs',
@@ -25,7 +25,7 @@ const listTabs = defineTool({
     name: 'browser_tab_list',
     title: 'List tabs',
     description: 'List browser tabs',
-    inputSchema: z.object({}).merge(projectIsolationSchema),
+    inputSchema: createSchemaWithProjectIsolation({}),
     type: 'readOnly',
   },
 
@@ -74,9 +74,9 @@ const newTab = defineTool({
     name: 'browser_tab_new',
     title: 'Open a new tab',
     description: 'Open a new tab',
-    inputSchema: z.object({
+    inputSchema: createSchemaWithProjectIsolation({
       url: z.string().optional().describe('The URL to navigate to in the new tab. If not provided, the new tab will be blank.'),
-    }).merge(projectIsolationSchema),
+    }),
     type: 'readOnly',
   },
 

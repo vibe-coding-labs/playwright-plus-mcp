@@ -19,7 +19,7 @@ import { z } from 'zod';
 import { defineTabTool, defineTool } from './tool.js';
 import * as javascript from '../javascript.js';
 import { generateLocator } from './utils.js';
-import { projectIsolationSchema, validateProjectIsolationParams, validateProjectIsolationParamsWithConfig, getProjectIsolationErrorMessage } from '../projectIsolation.js';
+import { createSchemaWithProjectIsolation, validateProjectIsolationParams, validateProjectIsolationParamsWithConfig, getProjectIsolationErrorMessage } from '../projectIsolation.js';
 
 const snapshot = defineTool({
   capability: 'core',
@@ -27,7 +27,7 @@ const snapshot = defineTool({
     name: 'browser_snapshot',
     title: 'Page snapshot',
     description: 'Capture accessibility snapshot of the current page, this is better than screenshot',
-    inputSchema: z.object({}).merge(projectIsolationSchema),
+    inputSchema: createSchemaWithProjectIsolation({}),
     type: 'readOnly',
   },
 

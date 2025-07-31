@@ -19,7 +19,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { z } from 'zod';
 import { defineTool } from './tool.js';
-import { projectIsolationSchema, validateProjectIsolationParams } from '../projectIsolation.js';
+import { createSchemaWithProjectIsolation, validateProjectIsolationParams } from '../projectIsolation.js';
 
 
 const install = defineTool({
@@ -28,7 +28,7 @@ const install = defineTool({
     name: 'browser_install',
     title: 'Install the browser specified in the config',
     description: 'Install the browser specified in the config. Call this if you get an error about the browser not being installed.',
-    inputSchema: z.object({}).merge(projectIsolationSchema),
+    inputSchema: createSchemaWithProjectIsolation({}),
     type: 'destructive',
   },
 

@@ -1,3 +1,13 @@
+<div align="center">
+
+# Playwright MCP Plus
+
+[English](README.md) | [中文](README.zh.md)
+
+</div>
+
+---
+
 ### 🎭 See the Difference!
 
 #### 😫 Without Playwright Plus MCP
