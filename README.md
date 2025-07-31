@@ -3,12 +3,14 @@
 #### 😫 Without Playwright Plus MCP
 > Tired of constantly re-logging in? Watch how frustrating it is when your browser sessions keep getting lost...
 
-https://github.com/CC11001100/playwright-plus-mcp/raw/main/docs/images/before-use-playwright-plus-mcp.mp4
+**📹 Demo Video:** [Watch Before (MP4)](https://github.com/ai-coding-labs/playwright-plus-mcp/raw/main/docs/images/before-use-playwright-plus-mcp.mp4) | [Watch Before (GIF)](https://github.com/ai-coding-labs/playwright-plus-mcp/raw/main/docs/images/before-use-playwright-plus-mcp.gif)
 
 #### 🚀 With Playwright Plus MCP
 > Experience the magic of persistent sessions! Multiple projects, multiple windows, all sessions preserved perfectly...
 
-https://github.com/CC11001100/playwright-plus-mcp/raw/main/docs/images/after-use-playwright-plus-mcp.mp4
+**📹 Demo Video:** [Watch After (MP4)](https://github.com/ai-coding-labs/playwright-plus-mcp/raw/main/docs/images/after-use-playwright-plus-mcp.mp4)
+
+> **💡 Note:** If the video doesn't play directly in GitHub, click the link to download and watch it locally. The videos demonstrate the dramatic difference in user experience between the standard Playwright MCP and our enhanced version with project isolation.
 
 **What You Just Saw:**
 - 🔄 **Before:** Every new window = New login required. Frustrating, time-consuming, and interrupts your workflow.
