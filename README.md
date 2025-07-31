@@ -2,7 +2,7 @@
 
 # Playwright MCP Plus
 
-[English](README.md) | [中文](README.zh.md)
+**🌐 Language / 语言:** [English](README.md) | [中文](README.zh.md)
 
 </div>
 
