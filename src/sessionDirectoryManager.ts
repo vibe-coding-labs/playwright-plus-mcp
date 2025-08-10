@@ -22,7 +22,7 @@ import crypto from 'crypto';
 /**
  * 会话目录存放策略
  */
-export type SessionDirectoryStrategy = 
+export type SessionDirectoryStrategy =
   | 'system'     // 系统默认位置 + 项目标识符后缀
   | 'project'    // 项目目录下
   | 'custom';    // 自定义根目录
@@ -70,7 +70,7 @@ export class SessionDirectoryManager {
           throw new Error(`Unknown session directory strategy: ${options.strategy}`);
       }
     } catch (error) {
-      console.error('Failed to create session directory:', error);
+
       return undefined;
     }
   }
@@ -81,19 +81,19 @@ export class SessionDirectoryManager {
   private static createSystemUserDataDir(options: SessionDirectoryOptions): string {
     const systemDataDir = this.getSystemDataDirectory();
     const projectId = this.generateProjectIdentifier(options.projectDrive, options.projectPath);
-    
+
     // 构建与Playwright官方一致的浏览器配置文件名
     const browserName = options.browserName || 'chromium';
     const channel = options.browserChannel;
     const browserProfile = `mcp-${channel || browserName}-profile`;
-    
+
     // 使用与Playwright官方一致的路径结构：
     // Windows: %LOCALAPPDATA%/ms-playwright/mcp-浏览器名-profile/playwright-plus-mcp/项目名-哈希值/
     // macOS: ~/Library/Caches/ms-playwright/mcp-浏览器名-profile/playwright-plus-mcp/项目名-哈希值/
     // Linux: ~/.cache/ms-playwright/mcp-浏览器名-profile/playwright-plus-mcp/项目名-哈希值/
     const sessionDir = path.join(systemDataDir, 'ms-playwright', browserProfile, 'playwright-plus-mcp', projectId);
     this.ensureDirectoryExists(sessionDir);
-    
+
     return sessionDir;
   }
 
@@ -101,14 +101,14 @@ export class SessionDirectoryManager {
    * 项目目录下存放
    */
   private static createProjectUserDataDir(options: SessionDirectoryOptions): string {
-    if (!options.projectPath) {
+    if (!options.projectPath)
       throw new Error('Project path is required for project strategy');
-    }
+
 
     const sessionDir = path.join(options.projectPath, this.SESSION_DIR_NAME);
     this.ensureDirectoryExists(sessionDir);
     this.ensureGitignore(options.projectPath);
-    
+
     return sessionDir;
   }
 
@@ -116,22 +116,22 @@ export class SessionDirectoryManager {
    * 自定义根目录下存放
    */
   private static createCustomUserDataDir(options: SessionDirectoryOptions): string {
-    if (!options.customRootDir) {
+    if (!options.customRootDir)
       throw new Error('Custom root directory is required for custom strategy');
-    }
+
 
     const projectId = this.generateProjectIdentifier(options.projectDrive, options.projectPath);
-    
+
     // 构建与Playwright官方一致的浏览器配置文件名
     const browserName = options.browserName || 'chromium';
     const channel = options.browserChannel;
     const browserProfile = `mcp-${channel || browserName}-profile`;
-    
+
     // 在自定义根目录下也使用相同的路径结构
     const sessionDir = path.join(options.customRootDir, 'ms-playwright', browserProfile, 'playwright-plus-mcp', projectId);
-    
+
     this.ensureDirectoryExists(sessionDir);
-    
+
     return sessionDir;
   }
 
@@ -141,7 +141,7 @@ export class SessionDirectoryManager {
    */
   private static getSystemDataDirectory(): string {
     const platform = os.platform();
-    
+
     switch (platform) {
       case 'win32':
         // Windows: 使用LOCALAPPDATA，与Playwright官方一致
@@ -163,21 +163,21 @@ export class SessionDirectoryManager {
    * 基于驱动器和项目路径的MD5哈希
    */
   private static generateProjectIdentifier(projectDrive?: string, projectPath?: string): string {
-    if (!projectDrive || !projectPath) {
+    if (!projectDrive || !projectPath)
       return 'default';
-    }
+
 
     // 规范化路径分隔符
     const normalizedPath = projectPath.replace(/\\/g, '/');
     const identifierSource = `${projectDrive}${normalizedPath}`;
-    
+
     // 生成MD5哈希
     const hash = crypto.createHash('md5').update(identifierSource).digest('hex');
-    
+
     // 取前12位哈希值，加上路径的最后一部分作为可读标识
     const baseName = path.basename(normalizedPath) || 'root';
     const sanitizedBaseName = this.sanitizeForFilePath(baseName);
-    
+
     return `${sanitizedBaseName}-${hash.substring(0, 12)}`;
   }
 
@@ -193,29 +193,29 @@ export class SessionDirectoryManager {
     ];
 
     let sanitized = name
-      .replace(/[<>:"/\\|?*]/g, '-')  // 替换Windows非法字符
-      .replace(/[\x00-\x1f\x80-\x9f]/g, '-')  // 替换控制字符
-      .replace(/\s+/g, '-')           // 替换空格
-      .replace(/\.+$/g, '')           // 移除末尾的点（Windows不允许）
-      .replace(/-+/g, '-')            // 合并多个连字符
-      .replace(/^-|-$/g, '')          // 移除首尾连字符
-      .toLowerCase();
+        .replace(/[<>:"/\\|?*]/g, '-')  // 替换Windows非法字符
+        .replace(/[\x00-\x1f\x80-\x9f]/g, '-')  // 替换控制字符
+        .replace(/\s+/g, '-')           // 替换空格
+        .replace(/\.+$/g, '')           // 移除末尾的点（Windows不允许）
+        .replace(/-+/g, '-')            // 合并多个连字符
+        .replace(/^-|-$/g, '')          // 移除首尾连字符
+        .toLowerCase();
 
     // 处理空字符串
-    if (!sanitized) {
+    if (!sanitized)
       sanitized = 'default';
-    }
+
 
     // 检查是否是Windows保留名称
-    if (windowsReservedNames.includes(sanitized.toUpperCase())) {
+    if (windowsReservedNames.includes(sanitized.toUpperCase()))
       sanitized = `${sanitized}-dir`;
-    }
+
 
     // 限制长度（考虑到后面还要加哈希值）
     const maxLength = 50;
-    if (sanitized.length > maxLength) {
+    if (sanitized.length > maxLength)
       sanitized = sanitized.substring(0, maxLength).replace(/-+$/, '');
-    }
+
 
     return sanitized;
   }
@@ -224,9 +224,9 @@ export class SessionDirectoryManager {
    * 确保目录存在
    */
   private static ensureDirectoryExists(dirPath: string): void {
-    if (!fs.existsSync(dirPath)) {
+    if (!fs.existsSync(dirPath))
       fs.mkdirSync(dirPath, { recursive: true });
-    }
+
   }
 
   /**
@@ -235,12 +235,12 @@ export class SessionDirectoryManager {
   private static ensureGitignore(projectPath: string): void {
     const gitignorePath = path.join(projectPath, '.gitignore');
     const ignoreEntry = this.SESSION_DIR_NAME;
-    
+
     try {
       let gitignoreContent = '';
-      if (fs.existsSync(gitignorePath)) {
+      if (fs.existsSync(gitignorePath))
         gitignoreContent = fs.readFileSync(gitignorePath, 'utf-8');
-      }
+
 
       // 检查是否已经包含ignore条目
       const lines = gitignoreContent.split('\n');
@@ -250,17 +250,17 @@ export class SessionDirectoryManager {
       if (!hasIgnoreEntry) {
         // 添加注释和ignore条目
         const newLines = [];
-        if (!hasComment) {
+        if (!hasComment)
           newLines.push('', this.GITIGNORE_COMMENT);
-        }
+
         newLines.push(ignoreEntry);
-        
+
         const updatedContent = gitignoreContent + newLines.join('\n') + '\n';
         fs.writeFileSync(gitignorePath, updatedContent, 'utf-8');
       }
     } catch (error) {
       // 忽略gitignore更新错误，不影响主要功能
-      console.warn('Failed to update .gitignore:', error);
+
     }
   }
 
@@ -275,18 +275,18 @@ export class SessionDirectoryManager {
    * 验证会话目录配置
    */
   static validateOptions(options: SessionDirectoryOptions): { valid: boolean; error?: string } {
-    if (!options.strategy) {
+    if (!options.strategy)
       return { valid: false, error: 'Strategy is required' };
-    }
 
-    if (options.strategy === 'custom' && !options.customRootDir) {
+
+    if (options.strategy === 'custom' && !options.customRootDir)
       return { valid: false, error: 'Custom root directory is required for custom strategy' };
-    }
 
-    if ((options.strategy === 'system' || options.strategy === 'project') && 
-        (!options.projectPath || !options.projectDrive)) {
+
+    if ((options.strategy === 'system' || options.strategy === 'project') &&
+        (!options.projectPath || !options.projectDrive))
       return { valid: false, error: 'Project path and drive are required for system/project strategy' };
-    }
+
 
     return { valid: true };
   }
@@ -296,9 +296,9 @@ export class SessionDirectoryManager {
    */
   static cleanupOldSessions(sessionDir: string, maxAgeInDays: number = 30): void {
     try {
-      if (!fs.existsSync(sessionDir)) {
+      if (!fs.existsSync(sessionDir))
         return;
-      }
+
 
       const cutoffTime = Date.now() - (maxAgeInDays * 24 * 60 * 60 * 1000);
       const entries = fs.readdirSync(sessionDir, { withFileTypes: true });
@@ -306,17 +306,17 @@ export class SessionDirectoryManager {
       for (const entry of entries) {
         const fullPath = path.join(sessionDir, entry.name);
         const stats = fs.statSync(fullPath);
-        
+
         if (stats.mtime.getTime() < cutoffTime) {
-          if (entry.isDirectory()) {
+          if (entry.isDirectory())
             fs.rmSync(fullPath, { recursive: true, force: true });
-          } else {
+          else
             fs.unlinkSync(fullPath);
-          }
+
         }
       }
     } catch (error) {
-      console.warn('Failed to cleanup old sessions:', error);
+
     }
   }
-} 
+}

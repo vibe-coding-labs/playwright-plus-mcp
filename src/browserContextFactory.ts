@@ -23,9 +23,59 @@ import * as playwright from 'playwright';
 
 import { logUnhandledError, testDebug } from './log.js';
 import { ProjectIsolationManager } from './projectIsolation.js';
+import { getInstalledExtensionPaths } from './tools/extensions.js';
 
 import type { FullConfig } from './config.js';
 import type { ProjectInfo } from './projectIsolation.js';
+
+/**
+ * Enhance launch options with MCP-managed extensions
+ */
+function enhanceLaunchOptionsWithExtensions(launchOptions: playwright.LaunchOptions, sessionUserDataDir?: string): playwright.LaunchOptions {
+  const mcpExtensionPaths = getInstalledExtensionPaths(sessionUserDataDir);
+  const enhancedOptions = { ...launchOptions };
+  const args = [...(enhancedOptions.args || [])];
+
+  // Collect all extension paths (existing + MCP-managed)
+  const allExtensionPaths: string[] = [];
+
+  // 1. Find and remove existing --load-extension arguments, extract paths
+  for (let i = args.length - 1; i >= 0; i--) {
+    const arg = args[i];
+    if (arg.startsWith('--load-extension=')) {
+      const existingPaths = arg.substring('--load-extension='.length).split(',');
+      allExtensionPaths.push(...existingPaths.filter(path => path.trim()));
+      args.splice(i, 1); // Remove existing argument
+      testDebug(`Found existing --load-extension argument: ${existingPaths.join(',')}`);
+    }
+  }
+
+  // 2. Add MCP-managed extension paths
+  allExtensionPaths.push(...mcpExtensionPaths);
+
+  // 3. Remove duplicates and empty paths
+  const uniqueExtensionPaths = [...new Set(allExtensionPaths.filter(path => path.trim()))];
+
+  // 4. If we have extension paths, add merged arguments
+  if (uniqueExtensionPaths.length > 0) {
+    const allExtensionPathsStr = uniqueExtensionPaths.join(',');
+    args.push(`--load-extension=${allExtensionPathsStr}`);
+    args.push(`--disable-extensions-except=${allExtensionPathsStr}`);
+    testDebug(`Enhanced launch options with ${uniqueExtensionPaths.length} total extensions: ${allExtensionPathsStr}`);
+  } else {
+    testDebug('No extensions to load');
+  }
+
+  // 5. Ensure we don't disable extensions entirely
+  const disableExtensionsIndex = args.findIndex(arg => arg === '--disable-extensions');
+  if (disableExtensionsIndex !== -1) {
+    args.splice(disableExtensionsIndex, 1);
+    testDebug('Removed --disable-extensions argument to allow extension loading');
+  }
+
+  enhancedOptions.args = args;
+  return enhancedOptions;
+}
 
 export function contextFactory(browserConfig: FullConfig['browser']): BrowserContextFactory {
   if (browserConfig.remoteEndpoint)
@@ -101,8 +151,9 @@ class IsolatedContextFactory extends BaseContextFactory {
   protected override async _doObtainBrowser(): Promise<playwright.Browser> {
     await injectCdpPort(this.browserConfig);
     const browserType = playwright[this.browserConfig.browserName];
+    const enhancedLaunchOptions = enhanceLaunchOptionsWithExtensions(this.browserConfig.launchOptions || {});
     return browserType.launch({
-      ...this.browserConfig.launchOptions,
+      ...enhancedLaunchOptions,
       handleSIGINT: false,
       handleSIGTERM: false,
     }).catch(error => {
@@ -166,10 +217,11 @@ class PersistentContextFactory implements BrowserContextFactory {
     testDebug('lock user data dir', userDataDir);
 
     const browserType = playwright[this.browserConfig.browserName];
+    const enhancedLaunchOptions = enhanceLaunchOptionsWithExtensions(this.browserConfig.launchOptions || {}, userDataDir);
     for (let i = 0; i < 5; i++) {
       try {
         const browserContext = await browserType.launchPersistentContext(userDataDir, {
-          ...this.browserConfig.launchOptions,
+          ...enhancedLaunchOptions,
           ...this.browserConfig.contextOptions,
           handleSIGINT: false,
           handleSIGTERM: false,
@@ -207,7 +259,7 @@ class PersistentContextFactory implements BrowserContextFactory {
         return projectUserDataDir;
       }
     }
-    
+
     // 否则使用默认逻辑
     let cacheDirectory: string;
     if (process.platform === 'linux')

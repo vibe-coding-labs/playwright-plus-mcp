@@ -1,0 +1,13 @@
+{
+  "browser": {
+    "browserName": "chromium",
+    "launchOptions": {
+      "channel": "chrome",
+      "headless": false,
+      "args": [
+        "--load-extension=/Users/cc11001100/github/JSREI/playwright-plus-mcp-with-chrome-extention-example/dist"
+      ]
+    }
+  },
+  "projectIsolation": true
+}

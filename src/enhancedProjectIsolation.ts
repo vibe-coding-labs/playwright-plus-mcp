@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 
-import { SessionDirectoryManager, type SessionDirectoryOptions, type SessionDirectoryStrategy } from './sessionDirectoryManager.js';
-import { ProjectIsolationManager, type ProjectInfo, validateProjectIsolationParams } from './projectIsolation.js';
+import { SessionDirectoryManager   } from './sessionDirectoryManager.js';
+import { ProjectIsolationManager,  validateProjectIsolationParams } from './projectIsolation.js';
+import type { SessionDirectoryOptions, SessionDirectoryStrategy } from './sessionDirectoryManager.js';
+import type { ProjectInfo } from './projectIsolation.js';
 import type { Config } from '../config.js';
 
 /**
@@ -46,19 +48,19 @@ export class EnhancedProjectIsolationManager {
     toolParams?: { projectDrive?: string; projectPath?: string }
   ): Promise<string | undefined> {
     // 如果没有启用项目隔离，使用默认行为
-    if (!config.projectIsolation) {
+    if (!config.projectIsolation)
       return undefined;
-    }
+
 
     // 获取项目信息
     const projectInfo = this.extractProjectInfo(toolParams);
-    if (!projectInfo || !validateProjectIsolationParams(projectInfo)) {
+    if (!projectInfo || !validateProjectIsolationParams(projectInfo))
       throw new Error('Project isolation is enabled but required parameters are missing. Please provide both projectDrive and projectPath parameters.');
-    }
+
 
     // 获取会话策略（默认为'system'，用户无感知）
     const strategy = config.projectIsolationSessionStrategy || 'system';
-    
+
     try {
       // 使用新的SessionDirectoryManager
       const sessionOptions: SessionDirectoryOptions = {
@@ -73,32 +75,29 @@ export class EnhancedProjectIsolationManager {
       // 验证配置
       const validation = SessionDirectoryManager.validateOptions(sessionOptions);
       if (!validation.valid) {
-        console.error(`❌ Invalid session directory configuration: ${validation.error}`);
+        // Invalid session directory configuration
         return undefined;
       }
 
       const userDataDir = SessionDirectoryManager.createUserDataDir(sessionOptions);
-      
+
       if (userDataDir) {
         // 如果是项目策略，使用原有的ProjectIsolationManager来处理.gitignore等
-        if (strategy === 'project') {
+        if (strategy === 'project')
           await ProjectIsolationManager.ensureProjectDataDir(userDataDir);
-        }
-        
-        console.log(`✅ Created session directory (${strategy} strategy): ${userDataDir}`);
-        
+
+
+        // Created session directory
+
         // 可选：清理旧的会话数据
-        if (strategy !== 'project') {
+        if (strategy !== 'project')
           SessionDirectoryManager.cleanupOldSessions(userDataDir);
-        }
+
       }
 
       return userDataDir;
     } catch (error) {
-      console.error('❌ Failed to create enhanced user data directory:', error);
-      
-      // 降级到原有的ProjectIsolationManager作为备选
-      console.log('🔄 Falling back to original project isolation...');
+      // Failed to create enhanced user data directory, falling back to original project isolation
       return ProjectIsolationManager.createUserDataDir(projectInfo);
     }
   }
@@ -107,9 +106,9 @@ export class EnhancedProjectIsolationManager {
    * 从MCP工具参数提取项目信息
    */
   private static extractProjectInfo(toolParams?: { projectDrive?: string; projectPath?: string }): ProjectInfo | undefined {
-    if (!toolParams?.projectDrive || !toolParams?.projectPath) {
+    if (!toolParams?.projectDrive || !toolParams?.projectPath)
       return undefined;
-    }
+
 
     return {
       projectDrive: toolParams.projectDrive,
@@ -136,9 +135,9 @@ export class EnhancedProjectIsolationManager {
       fallbackPath: undefined as string | undefined,
     };
 
-    if (!info.enabled) {
+    if (!info.enabled)
       return info;
-    }
+
 
     const projectInfo = this.extractProjectInfo(toolParams);
     if (projectInfo) {
@@ -187,7 +186,7 @@ export class EnhancedProjectIsolationManager {
         projectPath: projectInfo.projectPath,
         customRootDir,
       };
-      
+
       // 计算目标路径
       const toOptions: SessionDirectoryOptions = {
         strategy: toStrategy,
@@ -216,8 +215,6 @@ export class EnhancedProjectIsolationManager {
 
       // 这里可以实现实际的迁移逻辑
       // 目前只是返回路径信息，实际迁移需要更复杂的逻辑
-      console.log(`Migration would move from: ${fromPath}`);
-      console.log(`Migration would move to: ${toPath}`);
 
       return {
         success: true,
@@ -258,4 +255,4 @@ export class EnhancedProjectIsolationManager {
 
     return paths;
   }
-} 
+}

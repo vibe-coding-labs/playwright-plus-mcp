@@ -96,6 +96,7 @@
 ### 核心功能
 
 - **🚀 并发浏览器自动化**。运行无限并行浏览器会话进行可扩展的自动化测试。
+- **🧩 Chrome 扩展管理**。以编程方式安装、卸载和管理 Chrome 扩展，支持自动浏览器重启。
 - **快速轻量**。使用 Playwright 的可访问性树，而不是基于像素的输入。
 - **LLM 友好**。不需要视觉模型，纯粹基于结构化数据操作。
 - **确定性工具应用**。避免基于截图方法常见的歧义。
@@ -213,6 +214,50 @@ browser_navigate({
 ```
 
 **结果：** 你的自动化测试运行速度提高 10 倍，开发工作流程不被中断，你可以同时在多个项目上工作而不会丢失认证状态。
+
+### 🧩 Chrome 扩展管理
+
+Playwright MCP Plus 包含强大的 Chrome 扩展管理功能，允许你以编程方式安装、卸载和管理 Chrome 扩展，并支持自动浏览器重启以立即生效。
+
+**核心功能：**
+- **🚀 一键安装**：直接从 Chrome 网上应用店 URL 或扩展 ID 安装扩展
+- **🔄 自动浏览器重启**：安装后扩展立即可用
+- **🗑️ 干净卸载**：完全移除扩展并自动清理
+- **📋 扩展注册表**：跟踪所有已安装扩展的详细信息
+- **🏠 本地管理**：扩展存储在本地 `~/.mcp-extensions/` 目录中
+
+**使用示例：**
+
+```javascript
+// 通过 URL 安装扩展并立即加载
+browser_extension_install({
+  extensionUrl: "https://chromewebstore.google.com/detail/json-formatter/bcjindcccaagfpapjjmafapmmgkkhgoa",
+  loadImmediately: true,
+  projectDrive: "/",
+  projectPath: "/path/to/your/project"
+})
+
+// 通过 ID 安装扩展
+browser_extension_install({
+  extensionId: "chklaanhfefbnpoihckbnefhakgolnmc",
+  loadImmediately: true
+})
+
+// 列出所有已安装的扩展
+browser_extension_list()
+
+// 卸载扩展并立即生效
+browser_extension_uninstall({
+  extensionId: "bcjindcccaagfpapjjmafapmmgkkhgoa",
+  restartImmediately: true
+})
+```
+
+**完美适用于：**
+- **🧪 自动化测试**：为测试套件安装测试扩展
+- **🛠️ 开发工作流**：快速设置带有所需扩展的开发环境
+- **🔧 CI/CD 流水线**：在自动化工作流中以编程方式管理浏览器扩展
+- **📊 网页抓取**：安装增强数据提取能力的扩展
 
 [<img src="https://img.shields.io/badge/VS_Code-VS_Code?style=flat-square&label=Install%20Server&color=0098FF" alt="在 VS Code 中安装">](https://insiders.vscode.dev/redirect?url=vscode%3Amcp%2Finstall%3F%257B%2522name%2522%253A%2522playwright%2522%252C%2522command%2522%253A%2522npx%2522%252C%2522args%2522%253A%255B%2522%2540playwright%252Fmcp%2540latest%2522%255D%257D) [<img alt="在 VS Code Insiders 中安装" src="https://img.shields.io/badge/VS_Code_Insiders-VS_Code_Insiders?style=flat-square&label=Install%20Server&color=24bfa5">](https://insiders.vscode.dev/redirect?url=vscode-insiders%3Amcp%2Finstall%3F%257B%2522name%2522%253A%2522playwright%2522%252C%2522command%2522%253A%2522npx%2522%252C%2522args%2522%253A%255B%2522%2540playwright%252Fmcp%2540latest%2522%255D%257D)
 
@@ -955,6 +1000,47 @@ http.createServer(async (req, res) => {
     - `element` (string)：用于获得与元素交互权限的人类可读元素描述
     - `x` (number)：X 坐标
     - `y` (number)：Y 坐标
+  - 只读：**true**
+
+</details>
+
+<details>
+<summary><b>Chrome 扩展管理</b></summary>
+
+<!-- 注意：这是通过 update-readme.js 生成的 -->
+
+- **browser_extension_install**
+  - 标题：安装 Chrome 扩展
+  - 描述：通过下载并本地管理从 Chrome 网上应用店安装 Chrome 扩展
+  - 参数：
+    - `extensionId` (string, 可选)：Chrome 扩展 ID（例如，"cjpalhdlnbpafiamejdnhcphjbkeiagm"）
+    - `extensionUrl` (string, 可选)：扩展的完整 Chrome 网上应用店 URL
+    - `waitForInstall` (boolean, 可选)：是否等待安装完成（默认：true）
+    - `loadImmediately` (boolean, 可选)：是否重启浏览器以立即加载扩展（默认：true）
+    - `projectDrive` (string, 可选)：用于会话隔离的项目驱动器字母或根目录（例如，"C:"，"/"）
+    - `projectPath` (string, 可选)：用于会话隔离的项目根目录的绝对路径
+  - 只读：**false**
+
+<!-- 注意：这是通过 update-readme.js 生成的 -->
+
+- **browser_extension_uninstall**
+  - 标题：卸载 Chrome 扩展
+  - 描述：从 MCP 管理中卸载 Chrome 扩展并重启浏览器
+  - 参数：
+    - `extensionId` (string)：要卸载的 Chrome 扩展 ID（例如，"bcjindcccaagfpapjjmafapmmgkkhgoa"）
+    - `restartImmediately` (boolean, 可选)：是否在卸载后立即重启浏览器（默认：true）
+    - `projectDrive` (string, 可选)：用于会话隔离的项目驱动器字母或根目录（例如，"C:"，"/"）
+    - `projectPath` (string, 可选)：用于会话隔离的项目根目录的绝对路径
+  - 只读：**false**
+
+<!-- 注意：这是通过 update-readme.js 生成的 -->
+
+- **browser_extension_list**
+  - 标题：列出已安装的扩展
+  - 描述：列出所有 MCP 管理的 Chrome 扩展
+  - 参数：
+    - `projectDrive` (string, 可选)：用于会话隔离的项目驱动器字母或根目录（例如，"C:"，"/"）
+    - `projectPath` (string, 可选)：用于会话隔离的项目根目录的绝对路径
   - 只读：**true**
 
 </details>

@@ -31,9 +31,9 @@ const listTabs = defineTool({
 
   handle: async (context, params, response) => {
     // 验证项目隔离参数
-    if (!validateProjectIsolationParams(params)) {
+    if (!validateProjectIsolationParams(params))
       throw new Error('Both projectDrive and projectPath must be provided together, or neither should be provided.');
-    }
+
 
     // 处理项目信息（仅在首次调用时）
     if (params.projectDrive && params.projectPath) {
@@ -82,9 +82,9 @@ const newTab = defineTool({
 
   handle: async (context, params, response) => {
     // 验证项目隔离参数
-    if (!validateProjectIsolationParams(params)) {
+    if (!validateProjectIsolationParams(params))
       throw new Error('Both projectDrive and projectPath must be provided together, or neither should be provided.');
-    }
+
 
     // 处理项目信息（仅在首次调用时）
     if (params.projectDrive && params.projectPath) {

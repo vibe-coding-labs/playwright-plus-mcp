@@ -15,7 +15,7 @@
  */
 
 import fs from 'fs';
-import os from 'os';
+// import os from 'os';
 import path from 'path';
 import { z } from 'zod';
 
@@ -71,14 +71,14 @@ export function validateProjectIsolationParamsWithConfig(
 ): boolean {
   // 首先检查参数一致性
   const paramsConsistent = validateProjectIsolationParams(params);
-  if (!paramsConsistent) {
+  if (!paramsConsistent)
     return false;
-  }
+
 
   // 如果启用了项目隔离，必须提供两个参数
-  if (projectIsolationEnabled) {
+  if (projectIsolationEnabled)
     return !!(params.projectDrive && params.projectPath);
-  }
+
 
   // 如果没有启用项目隔离，参数可选
   return true;
@@ -117,7 +117,7 @@ export function getProjectIsolationErrorMessage(projectIsolationEnabled: boolean
  * 处理基于项目路径的用户数据目录创建和管理
  */
 export class ProjectIsolationManager {
-  
+
   private static readonly SESSION_DIR_NAME = '.user-session-data-directory';
   private static readonly GITIGNORE_COMMENT = '# Playwright MCP session data (auto-generated)';
   private static readonly MAX_PATH_LENGTH_WINDOWS = 260;
@@ -126,31 +126,31 @@ export class ProjectIsolationManager {
    * 根据项目信息创建用户数据目录路径
    */
   static createUserDataDir(projectInfo: ProjectInfo): string | undefined {
-    if (!projectInfo.projectPath || !projectInfo.projectDrive) {
+    if (!projectInfo.projectPath || !projectInfo.projectDrive)
       return undefined;
-    }
+
 
     try {
       // 验证项目路径
-      if (!this.validateProjectPath(projectInfo.projectPath)) {
+      if (!this.validateProjectPath(projectInfo.projectPath))
         return undefined;
-      }
+
 
       // 规范化路径
       const normalizedPath = path.resolve(projectInfo.projectPath);
-      
+
       // 创建会话数据目录路径
       const sessionDataDir = path.join(normalizedPath, this.SESSION_DIR_NAME);
-      
+
       // Windows路径长度检查
       if (process.platform === 'win32' && sessionDataDir.length > this.MAX_PATH_LENGTH_WINDOWS) {
-        console.warn(`⚠️  Warning: Path length (${sessionDataDir.length}) exceeds Windows limit (${this.MAX_PATH_LENGTH_WINDOWS})`);
-        console.warn(`   Path: ${sessionDataDir}`);
+
+
       }
 
       return sessionDataDir;
     } catch (error) {
-      console.error('❌ Failed to create user data directory path:', error);
+
       return undefined;
     }
   }
@@ -166,20 +166,19 @@ export class ProjectIsolationManager {
 
       // 创建会话数据目录
       await fs.promises.mkdir(userDataDir, { recursive: true });
-      
+
       // 检查.gitignore并提示用户
       await this.checkAndPromptGitignore(parentDir);
 
-      console.log(`📁 Project session directory created: ${userDataDir}`);
-      
+
     } catch (error: any) {
-      if (error.code === 'EACCES' || error.code === 'EPERM') {
+      if (error.code === 'EACCES' || error.code === 'EPERM')
         throw new Error(`Permission denied: Cannot create session directory at ${userDataDir}. Please check directory permissions.`);
-      } else if (error.code === 'ENOSPC') {
+      else if (error.code === 'ENOSPC')
         throw new Error(`No space left on device: Cannot create session directory at ${userDataDir}.`);
-      } else {
+      else
         throw new Error(`Failed to create session directory: ${error.message}`);
-      }
+
     }
   }
 
@@ -187,23 +186,23 @@ export class ProjectIsolationManager {
    * 验证项目路径的有效性
    */
   static validateProjectPath(projectPath: string): boolean {
-    if (!projectPath || typeof projectPath !== 'string') {
+    if (!projectPath || typeof projectPath !== 'string')
       return false;
-    }
+
 
     try {
       // 基本路径验证
       const normalizedPath = path.resolve(projectPath);
-      
+
       // 检查路径是否为绝对路径
-      if (!path.isAbsolute(normalizedPath)) {
+      if (!path.isAbsolute(normalizedPath))
         return false;
-      }
+
 
       // 安全检查：防止路径遍历攻击
-      if (normalizedPath.includes('..') || normalizedPath.includes('./')) {
+      if (normalizedPath.includes('..') || normalizedPath.includes('./'))
         return false;
-      }
+
 
       // 检查路径是否存在
       try {
@@ -241,13 +240,13 @@ export class ProjectIsolationManager {
     try {
       await fs.promises.access(dirPath, fs.constants.F_OK | fs.constants.W_OK);
     } catch (error: any) {
-      if (error.code === 'ENOENT') {
+      if (error.code === 'ENOENT')
         throw new Error(`Directory does not exist: ${dirPath}`);
-      } else if (error.code === 'EACCES') {
+      else if (error.code === 'EACCES')
         throw new Error(`Permission denied: Cannot write to directory ${dirPath}`);
-      } else {
+      else
         throw error;
-      }
+
     }
   }
 
@@ -257,11 +256,11 @@ export class ProjectIsolationManager {
   private static async checkAndPromptGitignore(projectDir: string): Promise<void> {
     try {
       const gitignorePath = path.join(projectDir, '.gitignore');
-      
+
       // 检查.gitignore文件是否存在
       let gitignoreExists = false;
       let gitignoreContent = '';
-      
+
       try {
         gitignoreContent = await fs.promises.readFile(gitignorePath, 'utf-8');
         gitignoreExists = true;
@@ -271,31 +270,29 @@ export class ProjectIsolationManager {
 
       // 检查是否已经包含忽略规则
       const hasIgnoreRule = gitignoreContent.includes(this.SESSION_DIR_NAME);
-      
+
       if (!hasIgnoreRule) {
         // 输出提示信息
-        console.log('');
-        console.log(this.getGitignoreHint());
-        console.log('');
+
 
         // 可选：自动添加到.gitignore（如果文件存在）
         if (gitignoreExists) {
           try {
-            const newContent = gitignoreContent + 
+            const newContent = gitignoreContent +
               (gitignoreContent.endsWith('\n') ? '' : '\n') +
               '\n' + this.GITIGNORE_COMMENT + '\n' +
               this.SESSION_DIR_NAME + '/\n';
-            
+
             await fs.promises.writeFile(gitignorePath, newContent);
-            console.log(`✅ Automatically added ${this.SESSION_DIR_NAME}/ to .gitignore`);
+
           } catch (error) {
-            console.log(`ℹ️  Could not automatically update .gitignore: ${error}`);
+
           }
         }
       }
     } catch (error) {
       // 忽略.gitignore检查错误，不影响主要功能
-      console.debug('Could not check .gitignore file:', error);
+
     }
   }
 
@@ -315,11 +312,11 @@ export class ProjectIsolationManager {
     try {
       const sessionDir = path.join(projectPath, this.SESSION_DIR_NAME);
       await fs.promises.rm(sessionDir, { recursive: true, force: true });
-      console.log(`🗑️  Cleaned up session directory: ${sessionDir}`);
+
       return true;
     } catch (error) {
-      console.error(`❌ Failed to cleanup session directory: ${error}`);
+
       return false;
     }
   }
-} 
+}

@@ -36,14 +36,14 @@ const screenshotSchema = z.object({
  */
 function validateScreenshotParams(data: any): void {
   // 验证element和ref必须同时提供或都不提供
-  if (!!data.element !== !!data.ref) {
+  if (!!data.element !== !!data.ref)
     throw new Error('Both element and ref must be provided or neither.');
-  }
+
 
   // 验证fullPage不能与element截图同时使用
-  if (data.fullPage && (data.element || data.ref)) {
+  if (data.fullPage && (data.element || data.ref))
     throw new Error('fullPage cannot be used with element screenshots.');
-  }
+
 }
 
 const screenshot = defineTabTool({

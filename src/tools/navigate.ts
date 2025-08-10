@@ -16,7 +16,7 @@
 
 import { z } from 'zod';
 import { defineTool, defineTabTool } from './tool.js';
-import { createSchemaWithProjectIsolation, validateProjectIsolationParams, validateProjectIsolationParamsWithConfig, getProjectIsolationErrorMessage } from '../projectIsolation.js';
+import { createSchemaWithProjectIsolation, validateProjectIsolationParamsWithConfig, getProjectIsolationErrorMessage } from '../projectIsolation.js';
 
 const navigate = defineTool({
   capability: 'core',
@@ -33,9 +33,9 @@ const navigate = defineTool({
 
   handle: async (context, params, response) => {
     // 验证项目隔离参数
-    if (!validateProjectIsolationParamsWithConfig(params, !!context.config.projectIsolation)) {
+    if (!validateProjectIsolationParamsWithConfig(params, !!context.config.projectIsolation))
       throw new Error(getProjectIsolationErrorMessage(!!context.config.projectIsolation));
-    }
+
 
     // 处理项目信息（仅在首次调用时）
     if (params.projectDrive && params.projectPath) {

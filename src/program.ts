@@ -24,7 +24,7 @@ import { packageJSON } from './package.js';
 import { runWithExtension } from './extension/main.js';
 import { BrowserServerBackend } from './browserServerBackend.js';
 import { Context } from './context.js';
-import { contextFactory } from './browserContextFactory.js';
+// import { contextFactory } from './browserContextFactory.js';
 import { createEnhancedContextFactory } from './enhancedBrowserContextFactory.js';
 import { runLoopTools } from './loopTools/main.js';
 

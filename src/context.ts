@@ -59,9 +59,9 @@ export class Context {
   }
 
   setProjectInfo(projectInfo: ProjectInfo): void {
-    if (!this._projectInfo && (projectInfo.projectDrive || projectInfo.projectPath)) {
+    if (!this._projectInfo && (projectInfo.projectDrive || projectInfo.projectPath))
       this._projectInfo = projectInfo;
-    }
+
   }
 
   getProjectInfo(): ProjectInfo | undefined {

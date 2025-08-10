@@ -1,6 +1,6 @@
 {
   "name": "@ai-coding-labs/playwright-mcp-plus",
-  "version": "0.0.36",
+  "version": "0.0.39",
   "description": "Enhanced Playwright Tools for MCP with Project Session Isolation",
   "type": "module",
   "repository": {
@@ -21,7 +21,10 @@
     "model-context-protocol",
     "browser-automation",
     "project-isolation",
-    "session-management"
+    "session-management",
+    "chrome-extensions",
+    "extension-management",
+    "browser-extensions"
   ],
   "scripts": {
     "build": "tsc",
@@ -47,6 +50,7 @@
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.16.0",
     "commander": "^13.1.0",
+    "crx-util": "^1.0.0",
     "debug": "^4.4.1",
     "dotenv": "^17.2.0",
     "mime": "^4.0.7",
