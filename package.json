@@ -1,6 +1,6 @@
 {
   "name": "@ai-coding-labs/playwright-mcp-plus",
-  "version": "0.0.40",
+  "version": "0.0.41",
   "description": "Enhanced Playwright Tools for MCP with Project Session Isolation",
   "type": "module",
   "repository": {

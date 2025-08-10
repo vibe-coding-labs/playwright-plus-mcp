@@ -81,7 +81,7 @@ program
         return;
       }
 
-      const browserContextFactory = createEnhancedContextFactory(config);
+      const browserContextFactory = await createEnhancedContextFactory(config);
       const serverBackendFactory = () => new BrowserServerBackend(config, browserContextFactory);
       await mcpTransport.start(serverBackendFactory, config.server);
 

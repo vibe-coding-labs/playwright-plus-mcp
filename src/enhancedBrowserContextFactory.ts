@@ -210,7 +210,7 @@ export class EnhancedPersistentContextFactory implements BrowserContextFactory {
  * 增强的上下文工厂创建函数
  * 根据配置决定是否使用增强功能
  */
-export function createEnhancedContextFactory(config: FullConfig): BrowserContextFactory {
+export async function createEnhancedContextFactory(config: FullConfig): Promise<BrowserContextFactory> {
   // 如果启用了项目隔离，根据策略选择工厂
   if (config.projectIsolation) {
     const strategy = config.projectIsolationSessionStrategy || 'system';
@@ -218,26 +218,26 @@ export function createEnhancedContextFactory(config: FullConfig): BrowserContext
     // 只有project策略使用原有逻辑，其他策略都使用增强工厂
     if (strategy === 'project') {
       // 使用原有的上下文工厂（project策略）
-      const { contextFactory } = require('./browserContextFactory.js');
+      const { contextFactory } = await import('./browserContextFactory.js');
       return contextFactory(config.browser);
     }
 
     // system和custom策略使用增强工厂
     if (config.browser.remoteEndpoint) {
       // Remote endpoint 暂不支持增强功能，使用原有逻辑
-      const { contextFactory } = require('./browserContextFactory.js');
+      const { contextFactory } = await import('./browserContextFactory.js');
       return contextFactory(config.browser);
     }
 
     if (config.browser.cdpEndpoint) {
       // CDP endpoint 暂不支持增强功能，使用原有逻辑
-      const { contextFactory } = require('./browserContextFactory.js');
+      const { contextFactory } = await import('./browserContextFactory.js');
       return contextFactory(config.browser);
     }
 
     if (config.browser.isolated) {
       // Isolated mode 暂不支持增强功能，使用原有逻辑
-      const { contextFactory } = require('./browserContextFactory.js');
+      const { contextFactory } = await import('./browserContextFactory.js');
       return contextFactory(config.browser);
     }
 
@@ -246,6 +246,6 @@ export function createEnhancedContextFactory(config: FullConfig): BrowserContext
   }
 
   // 未启用项目隔离，使用原有的上下文工厂
-  const { contextFactory } = require('./browserContextFactory.js');
+  const { contextFactory } = await import('./browserContextFactory.js');
   return contextFactory(config.browser);
 }
