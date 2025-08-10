@@ -89,7 +89,7 @@ export class EnhancedPersistentContextFactory implements BrowserContextFactory {
     this.config = config;
   }
 
-  async createContext(clientInfo?: { name: string, version: string }, projectInfo?: ProjectInfo): Promise<{ browserContext: playwright.BrowserContext, close: () => Promise<void> }> {
+  async createContext(clientInfo?: { name: string, version: string }, projectInfo?: ProjectInfo): Promise<{ browserContext: playwright.BrowserContext, close: () => Promise<void>, userDataDir?: string }> {
     testDebug('create browser context (enhanced persistent)');
 
     // 使用增强的用户数据目录创建逻辑
@@ -109,7 +109,7 @@ export class EnhancedPersistentContextFactory implements BrowserContextFactory {
           handleSIGTERM: false,
         });
         const close = () => this._closeBrowserContext(browserContext, userDataDir);
-        return { browserContext, close };
+        return { browserContext, close, userDataDir };
       } catch (error: any) {
         if (error.message.includes('Executable doesn\'t exist'))
           throw new Error(`Browser specified in your config is not installed. Either install it (likely) or change the config.`);

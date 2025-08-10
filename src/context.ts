@@ -37,6 +37,7 @@ export class Context {
   private _tabs: Tab[] = [];
   private _currentTab: Tab | undefined;
   private _projectInfo?: ProjectInfo;
+  private _currentUserDataDir?: string;
 
   clientVersion: { name: string; version: string; } | undefined;
 
@@ -66,6 +67,24 @@ export class Context {
 
   getProjectInfo(): ProjectInfo | undefined {
     return this._projectInfo;
+  }
+
+  /**
+   * Get the current session's user data directory
+   * This is the actual directory used by the browser context
+   */
+  getCurrentUserDataDir(): string | undefined {
+    return this._currentUserDataDir;
+  }
+
+  /**
+   * Set the current session's user data directory
+   * This should be called when the browser context is created
+   */
+  setCurrentUserDataDir(userDataDir: string): void {
+    if (!this._currentUserDataDir) {
+      this._currentUserDataDir = userDataDir;
+    }
   }
 
   tabs(): Tab[] {
@@ -218,7 +237,13 @@ export class Context {
       throw new Error('Another browser context is being closed.');
     // TODO: move to the browser context factory to make it based on isolation mode.
     const result = await this._browserContextFactory.createContext(this.clientVersion!, this._projectInfo);
-    const { browserContext } = result;
+    const { browserContext, userDataDir } = result;
+
+    // Store the actual user data directory used by the browser context
+    if (userDataDir) {
+      this.setCurrentUserDataDir(userDataDir);
+    }
+
     await this._setupRequestInterception(browserContext);
     if (this._sessionLog)
       this._inputRecorder = await InputRecorder.create(this._sessionLog, browserContext);

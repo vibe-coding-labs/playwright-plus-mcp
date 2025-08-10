@@ -72,7 +72,58 @@ function getChromeUserDataDir(): string {
 }
 
 /**
- * Get session user data directory from project isolation parameters
+ * Get session user data directory from context
+ * This ensures we use the same directory that the browser is actually using
+ */
+function getSessionUserDataDirFromContext(context: any): string | undefined {
+  // Get the actual user data directory from the context
+  if (context && typeof context.getCurrentUserDataDir === 'function') {
+    return context.getCurrentUserDataDir();
+  }
+  return undefined;
+}
+
+/**
+ * Get session user data directory using the same logic as browser context factory
+ * This uses the enhanced project isolation manager with proper configuration
+ */
+async function getSessionUserDataDirWithConfig(
+  context: any,
+  projectDrive?: string,
+  projectPath?: string
+): Promise<string | undefined> {
+  // First try to get from context (preferred)
+  const contextUserDataDir = getSessionUserDataDirFromContext(context);
+  if (contextUserDataDir) {
+    return contextUserDataDir;
+  }
+
+  // Fallback: use the same logic as browser context factory
+  if (!projectDrive || !projectPath || !context?.config) {
+    return undefined;
+  }
+
+  try {
+    const { EnhancedProjectIsolationManager } = await import('../enhancedProjectIsolation.js');
+    const userDataDir = await EnhancedProjectIsolationManager.createUserDataDir(
+      context.config,
+      { projectDrive, projectPath }
+    );
+    return userDataDir;
+  } catch (error) {
+    // If enhanced manager fails, fall back to original logic
+    try {
+      const projectInfo: ProjectInfo = { projectDrive, projectPath };
+      return ProjectIsolationManager.createUserDataDir(projectInfo);
+    } catch (fallbackError) {
+      return undefined;
+    }
+  }
+}
+
+/**
+ * Get session user data directory from project isolation parameters (legacy)
+ * This is kept for backward compatibility but should be avoided
  */
 function getSessionUserDataDir(projectDrive?: string, projectPath?: string): string | undefined {
   if (!projectDrive || !projectPath)
@@ -422,8 +473,12 @@ const installExtension = defineTabTool({
       throw new Error('Either extensionId or extensionUrl must be provided');
 
 
-    // Get session user data directory from project isolation parameters
-    const sessionUserDataDir = getSessionUserDataDir(params.projectDrive, params.projectPath);
+    // Get session user data directory using the same logic as browser context factory
+    const sessionUserDataDir = await getSessionUserDataDirWithConfig(
+      tab.context,
+      params.projectDrive,
+      params.projectPath
+    );
 
     response.addCode(`// Installing Chrome extension: ${extensionId}`);
     if (sessionUserDataDir)
@@ -465,7 +520,7 @@ const installExtension = defineTabTool({
         response.addResult(`🔄 The extension will be automatically loaded when you restart the browser or start a new session.`);
       }
 
-      response.addResult(`📁 Extension registry: ${getExtensionsRegistryPath()}`);
+      response.addResult(`📁 Extension registry: ${getExtensionsRegistryPath(sessionUserDataDir)}`);
 
     } catch (error) {
       throw new Error(`Failed to install extension ${extensionId}: ${error}`);
@@ -486,8 +541,12 @@ const listExtensions = defineTool({
 
   handle: async (context, params, response) => {
     try {
-      // Get session user data directory from project isolation parameters
-      const sessionUserDataDir = getSessionUserDataDir(params.projectDrive, params.projectPath);
+      // Get session user data directory using the same logic as browser context factory
+      const sessionUserDataDir = await getSessionUserDataDirWithConfig(
+        context,
+        params.projectDrive,
+        params.projectPath
+      );
       const registry = loadExtensionsRegistry(sessionUserDataDir);
 
       if (sessionUserDataDir)
@@ -544,8 +603,12 @@ const uninstallExtension = defineTabTool({
   handle: async (tab, params, response) => {
     response.setIncludeSnapshot();
 
-    // Get session user data directory from project isolation parameters
-    const sessionUserDataDir = getSessionUserDataDir(params.projectDrive, params.projectPath);
+    // Get session user data directory using the same logic as browser context factory
+    const sessionUserDataDir = await getSessionUserDataDirWithConfig(
+      tab.context,
+      params.projectDrive,
+      params.projectPath
+    );
 
     const extensionId = params.extensionId;
     response.addCode(`// Uninstalling Chrome extension: ${extensionId}`);
@@ -590,7 +653,7 @@ const uninstallExtension = defineTabTool({
         response.addResult(`🔄 The extension will be removed when you restart the browser or start a new session.`);
       }
 
-      response.addResult(`📁 Extension registry: ${getExtensionsRegistryPath()}`);
+      response.addResult(`📁 Extension registry: ${getExtensionsRegistryPath(sessionUserDataDir)}`);
 
     } catch (error) {
       throw new Error(`Failed to uninstall extension ${extensionId}: ${error}`);

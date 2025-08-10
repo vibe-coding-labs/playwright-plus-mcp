@@ -88,7 +88,7 @@ export function contextFactory(browserConfig: FullConfig['browser']): BrowserCon
 }
 
 export interface BrowserContextFactory {
-  createContext(clientInfo: { name: string, version: string }, projectInfo?: ProjectInfo): Promise<{ browserContext: playwright.BrowserContext, close: () => Promise<void> }>;
+  createContext(clientInfo?: { name: string, version: string }, projectInfo?: ProjectInfo): Promise<{ browserContext: playwright.BrowserContext, close: () => Promise<void>, userDataDir?: string }>;
 }
 
 class BaseContextFactory implements BrowserContextFactory {
@@ -120,18 +120,18 @@ class BaseContextFactory implements BrowserContextFactory {
     throw new Error('Not implemented');
   }
 
-  async createContext(): Promise<{ browserContext: playwright.BrowserContext, close: () => Promise<void> }> {
+  async createContext(clientInfo?: { name: string, version: string }, projectInfo?: ProjectInfo): Promise<{ browserContext: playwright.BrowserContext, close: () => Promise<void>, userDataDir?: string }> {
     testDebug(`create browser context (${this.name})`);
     const browser = await this._obtainBrowser();
-    const browserContext = await this._doCreateContext(browser);
-    return { browserContext, close: () => this._closeBrowserContext(browserContext, browser) };
+    const browserContext = await this._doCreateContext(browser, projectInfo);
+    return { browserContext, close: () => this._closeBrowserContext(browserContext, browser), userDataDir: undefined };
   }
 
-  protected async _doCreateContext(browser: playwright.Browser): Promise<playwright.BrowserContext> {
+  protected async _doCreateContext(browser: playwright.Browser, projectInfo?: ProjectInfo): Promise<playwright.BrowserContext> {
     throw new Error('Not implemented');
   }
 
-  private async _closeBrowserContext(browserContext: playwright.BrowserContext, browser: playwright.Browser) {
+  protected async _closeBrowserContext(browserContext: playwright.BrowserContext, browser: playwright.Browser) {
     testDebug(`close browser context (${this.name})`);
     if (browser.contexts().length === 1)
       this._browserPromise = undefined;
@@ -144,14 +144,53 @@ class BaseContextFactory implements BrowserContextFactory {
 }
 
 class IsolatedContextFactory extends BaseContextFactory {
+  private _browserPromiseWithProject: Map<string, Promise<playwright.Browser>> = new Map();
+
   constructor(browserConfig: FullConfig['browser']) {
     super('isolated', browserConfig);
   }
 
+  protected override async _obtainBrowser(): Promise<playwright.Browser> {
+    // For isolated context, we need to defer browser creation until we have project info
+    // This is handled in createContext method
+    throw new Error('IsolatedContextFactory requires project info - use createContext directly');
+  }
+
   protected override async _doObtainBrowser(): Promise<playwright.Browser> {
+    // This should not be called directly for IsolatedContextFactory
+    throw new Error('Use _doObtainBrowserWithProject instead');
+  }
+
+  private async _doObtainBrowserWithProject(projectInfo?: ProjectInfo): Promise<playwright.Browser> {
+    const projectKey = projectInfo ? `${projectInfo.projectDrive}:${projectInfo.projectPath}` : 'global';
+
+    if (this._browserPromiseWithProject.has(projectKey)) {
+      return this._browserPromiseWithProject.get(projectKey)!;
+    }
+
+    const browserPromise = this._createBrowserWithProject(projectInfo);
+    this._browserPromiseWithProject.set(projectKey, browserPromise);
+
+    // Handle browser disconnection
+    browserPromise.then(browser => {
+      browser.on('disconnected', () => {
+        this._browserPromiseWithProject.delete(projectKey);
+      });
+    }).catch(() => {
+      this._browserPromiseWithProject.delete(projectKey);
+    });
+
+    return browserPromise;
+  }
+
+  private async _createBrowserWithProject(projectInfo?: ProjectInfo): Promise<playwright.Browser> {
     await injectCdpPort(this.browserConfig);
     const browserType = playwright[this.browserConfig.browserName];
-    const enhancedLaunchOptions = enhanceLaunchOptionsWithExtensions(this.browserConfig.launchOptions || {});
+
+    // Get session user data directory for extension loading
+    const sessionUserDataDir = this._getSessionUserDataDir(projectInfo);
+    const enhancedLaunchOptions = enhanceLaunchOptionsWithExtensions(this.browserConfig.launchOptions || {}, sessionUserDataDir);
+
     return browserType.launch({
       ...enhancedLaunchOptions,
       handleSIGINT: false,
@@ -163,8 +202,30 @@ class IsolatedContextFactory extends BaseContextFactory {
     });
   }
 
-  protected override async _doCreateContext(browser: playwright.Browser): Promise<playwright.BrowserContext> {
+  async createContext(clientInfo?: { name: string, version: string }, projectInfo?: ProjectInfo): Promise<{ browserContext: playwright.BrowserContext, close: () => Promise<void>, userDataDir?: string }> {
+    testDebug(`create browser context (${this.name})`);
+    const browser = await this._doObtainBrowserWithProject(projectInfo);
+    const browserContext = await this._doCreateContext(browser, projectInfo);
+    const userDataDir = this._getSessionUserDataDir(projectInfo);
+    return { browserContext, close: () => this._closeBrowserContext(browserContext, browser), userDataDir };
+  }
+
+  protected override async _doCreateContext(browser: playwright.Browser, projectInfo?: ProjectInfo): Promise<playwright.BrowserContext> {
     return browser.newContext(this.browserConfig.contextOptions);
+  }
+
+  private _getSessionUserDataDir(projectInfo?: ProjectInfo): string | undefined {
+    if (!projectInfo?.projectDrive || !projectInfo?.projectPath) {
+      return undefined;
+    }
+
+    try {
+      // Use the enhanced project isolation manager to get the session directory
+      return ProjectIsolationManager.createUserDataDir(projectInfo);
+    } catch (error) {
+      // If project isolation fails, return undefined to fall back to global storage
+      return undefined;
+    }
   }
 }
 
@@ -177,7 +238,7 @@ class CdpContextFactory extends BaseContextFactory {
     return playwright.chromium.connectOverCDP(this.browserConfig.cdpEndpoint!);
   }
 
-  protected override async _doCreateContext(browser: playwright.Browser): Promise<playwright.BrowserContext> {
+  protected override async _doCreateContext(browser: playwright.Browser, projectInfo?: ProjectInfo): Promise<playwright.BrowserContext> {
     return this.browserConfig.isolated ? await browser.newContext() : browser.contexts()[0];
   }
 }
@@ -195,7 +256,7 @@ class RemoteContextFactory extends BaseContextFactory {
     return playwright[this.browserConfig.browserName].connect(String(url));
   }
 
-  protected override async _doCreateContext(browser: playwright.Browser): Promise<playwright.BrowserContext> {
+  protected override async _doCreateContext(browser: playwright.Browser, projectInfo?: ProjectInfo): Promise<playwright.BrowserContext> {
     return browser.newContext();
   }
 }
@@ -208,7 +269,7 @@ class PersistentContextFactory implements BrowserContextFactory {
     this.browserConfig = browserConfig;
   }
 
-  async createContext(clientInfo?: { name: string, version: string }, projectInfo?: ProjectInfo): Promise<{ browserContext: playwright.BrowserContext, close: () => Promise<void> }> {
+  async createContext(clientInfo?: { name: string, version: string }, projectInfo?: ProjectInfo): Promise<{ browserContext: playwright.BrowserContext, close: () => Promise<void>, userDataDir?: string }> {
     await injectCdpPort(this.browserConfig);
     testDebug('create browser context (persistent)');
     const userDataDir = this.browserConfig.userDataDir ?? await this._createUserDataDir(projectInfo);
@@ -227,7 +288,7 @@ class PersistentContextFactory implements BrowserContextFactory {
           handleSIGTERM: false,
         });
         const close = () => this._closeBrowserContext(browserContext, userDataDir);
-        return { browserContext, close };
+        return { browserContext, close, userDataDir };
       } catch (error: any) {
         if (error.message.includes('Executable doesn\'t exist'))
           throw new Error(`Browser specified in your config is not installed. Either install it (likely) or change the config.`);
