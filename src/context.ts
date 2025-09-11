@@ -82,9 +82,9 @@ export class Context {
    * This should be called when the browser context is created
    */
   setCurrentUserDataDir(userDataDir: string): void {
-    if (!this._currentUserDataDir) {
+    if (!this._currentUserDataDir)
       this._currentUserDataDir = userDataDir;
-    }
+
   }
 
   tabs(): Tab[] {
@@ -112,7 +112,8 @@ export class Context {
     const tab = this._tabs[index];
     if (!tab)
       throw new Error(`Tab ${index} not found`);
-    await tab.page.bringToFront();
+    // 移除 bringToFront() 调用，避免浏览器窗口自动跳到前台
+    // await tab.page.bringToFront();
     this._currentTab = tab;
     return tab;
   }
@@ -240,9 +241,9 @@ export class Context {
     const { browserContext, userDataDir } = result;
 
     // Store the actual user data directory used by the browser context
-    if (userDataDir) {
+    if (userDataDir)
       this.setCurrentUserDataDir(userDataDir);
-    }
+
 
     await this._setupRequestInterception(browserContext);
     if (this._sessionLog)

@@ -77,9 +77,9 @@ function getChromeUserDataDir(): string {
  */
 function getSessionUserDataDirFromContext(context: any): string | undefined {
   // Get the actual user data directory from the context
-  if (context && typeof context.getCurrentUserDataDir === 'function') {
+  if (context && typeof context.getCurrentUserDataDir === 'function')
     return context.getCurrentUserDataDir();
-  }
+
   return undefined;
 }
 
@@ -94,20 +94,20 @@ async function getSessionUserDataDirWithConfig(
 ): Promise<string | undefined> {
   // First try to get from context (preferred)
   const contextUserDataDir = getSessionUserDataDirFromContext(context);
-  if (contextUserDataDir) {
+  if (contextUserDataDir)
     return contextUserDataDir;
-  }
+
 
   // Fallback: use the same logic as browser context factory
-  if (!projectDrive || !projectPath || !context?.config) {
+  if (!projectDrive || !projectPath || !context?.config)
     return undefined;
-  }
+
 
   try {
     const { EnhancedProjectIsolationManager } = await import('../enhancedProjectIsolation.js');
     const userDataDir = await EnhancedProjectIsolationManager.createUserDataDir(
-      context.config,
-      { projectDrive, projectPath }
+        context.config,
+        { projectDrive, projectPath }
     );
     return userDataDir;
   } catch (error) {
@@ -125,6 +125,7 @@ async function getSessionUserDataDirWithConfig(
  * Get session user data directory from project isolation parameters (legacy)
  * This is kept for backward compatibility but should be avoided
  */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function getSessionUserDataDir(projectDrive?: string, projectPath?: string): string | undefined {
   if (!projectDrive || !projectPath)
     return undefined;
@@ -475,9 +476,9 @@ const installExtension = defineTabTool({
 
     // Get session user data directory using the same logic as browser context factory
     const sessionUserDataDir = await getSessionUserDataDirWithConfig(
-      tab.context,
-      params.projectDrive,
-      params.projectPath
+        tab.context,
+        params.projectDrive,
+        params.projectPath
     );
 
     response.addCode(`// Installing Chrome extension: ${extensionId}`);
@@ -543,9 +544,9 @@ const listExtensions = defineTool({
     try {
       // Get session user data directory using the same logic as browser context factory
       const sessionUserDataDir = await getSessionUserDataDirWithConfig(
-        context,
-        params.projectDrive,
-        params.projectPath
+          context,
+          params.projectDrive,
+          params.projectPath
       );
       const registry = loadExtensionsRegistry(sessionUserDataDir);
 
@@ -605,9 +606,9 @@ const uninstallExtension = defineTabTool({
 
     // Get session user data directory using the same logic as browser context factory
     const sessionUserDataDir = await getSessionUserDataDirWithConfig(
-      tab.context,
-      params.projectDrive,
-      params.projectPath
+        tab.context,
+        params.projectDrive,
+        params.projectPath
     );
 
     const extensionId = params.extensionId;

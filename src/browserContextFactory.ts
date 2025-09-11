@@ -164,9 +164,9 @@ class IsolatedContextFactory extends BaseContextFactory {
   private async _doObtainBrowserWithProject(projectInfo?: ProjectInfo): Promise<playwright.Browser> {
     const projectKey = projectInfo ? `${projectInfo.projectDrive}:${projectInfo.projectPath}` : 'global';
 
-    if (this._browserPromiseWithProject.has(projectKey)) {
+    if (this._browserPromiseWithProject.has(projectKey))
       return this._browserPromiseWithProject.get(projectKey)!;
-    }
+
 
     const browserPromise = this._createBrowserWithProject(projectInfo);
     this._browserPromiseWithProject.set(projectKey, browserPromise);
@@ -215,9 +215,9 @@ class IsolatedContextFactory extends BaseContextFactory {
   }
 
   private _getSessionUserDataDir(projectInfo?: ProjectInfo): string | undefined {
-    if (!projectInfo?.projectDrive || !projectInfo?.projectPath) {
+    if (!projectInfo?.projectDrive || !projectInfo?.projectPath)
       return undefined;
-    }
+
 
     try {
       // Use the enhanced project isolation manager to get the session directory
