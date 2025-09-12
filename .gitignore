@@ -8,5 +8,12 @@ playwright-report/
 .env
 sessions/
 
+# Log files
+*.log
+*.out
+*.err
+server.log
+nohup.out
+
 # Playwright MCP session data (auto-generated)
 .user-session-data-directory/
