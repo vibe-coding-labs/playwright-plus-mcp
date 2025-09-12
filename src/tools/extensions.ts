@@ -80,6 +80,7 @@ function getSessionUserDataDirFromContext(context: any): string | undefined {
   if (context && typeof context.getCurrentUserDataDir === 'function')
     return context.getCurrentUserDataDir();
 
+
   return undefined;
 }
 
