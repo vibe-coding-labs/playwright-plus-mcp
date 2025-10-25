@@ -34,12 +34,12 @@ import type { ProjectInfo } from './projectIsolation.js';
 function enhanceLaunchOptionsWithExtensions(launchOptions: playwright.LaunchOptions, sessionUserDataDir?: string): playwright.LaunchOptions {
   const mcpExtensionPaths = getInstalledExtensionPaths(sessionUserDataDir);
   const enhancedOptions = { ...launchOptions };
-  const args = [...(enhancedOptions.args || [])];
+  let args = [...(enhancedOptions.args || [])];
 
   // Collect all extension paths (existing + MCP-managed)
   const allExtensionPaths: string[] = [];
 
-  // 1. Find and remove existing --load-extension arguments, extract paths
+  // 1. Find and remove existing --load-extension and --disable-extensions-except arguments, extract paths
   for (let i = args.length - 1; i >= 0; i--) {
     const arg = args[i];
     if (arg.startsWith('--load-extension=')) {
@@ -47,6 +47,11 @@ function enhanceLaunchOptionsWithExtensions(launchOptions: playwright.LaunchOpti
       allExtensionPaths.push(...existingPaths.filter(path => path.trim()));
       args.splice(i, 1); // Remove existing argument
       testDebug(`Found existing --load-extension argument: ${existingPaths.join(',')}`);
+    } else if (arg.startsWith('--disable-extensions-except=')) {
+      const existingPaths = arg.substring('--disable-extensions-except='.length).split(',');
+      allExtensionPaths.push(...existingPaths.filter(path => path.trim()));
+      args.splice(i, 1); // Remove existing argument
+      testDebug(`Found existing --disable-extensions-except argument: ${existingPaths.join(',')}`);
     }
   }
 
@@ -56,21 +61,23 @@ function enhanceLaunchOptionsWithExtensions(launchOptions: playwright.LaunchOpti
   // 3. Remove duplicates and empty paths
   const uniqueExtensionPaths = [...new Set(allExtensionPaths.filter(path => path.trim()))];
 
-  // 4. If we have extension paths, add merged arguments
+  // 4. If we have extension paths, add extension arguments
   if (uniqueExtensionPaths.length > 0) {
     const allExtensionPathsStr = uniqueExtensionPaths.join(',');
-    args.push(`--load-extension=${allExtensionPathsStr}`);
+    
+    // Remove any --disable-extensions argument that might conflict
+    args = args.filter(arg => arg !== '--disable-extensions');
+    
+    // According to Playwright docs and Chromium behavior:
+    // - We need both --disable-extensions-except and --load-extension
+    // - --disable-extensions-except will override the default --disable-extensions that Playwright adds
+    // - Place these arguments at the END so they override any earlier conflicting arguments
     args.push(`--disable-extensions-except=${allExtensionPathsStr}`);
+    args.push(`--load-extension=${allExtensionPathsStr}`);
+    
     testDebug(`Enhanced launch options with ${uniqueExtensionPaths.length} total extensions: ${allExtensionPathsStr}`);
   } else {
     testDebug('No extensions to load');
-  }
-
-  // 5. Ensure we don't disable extensions entirely
-  const disableExtensionsIndex = args.findIndex(arg => arg === '--disable-extensions');
-  if (disableExtensionsIndex !== -1) {
-    args.splice(disableExtensionsIndex, 1);
-    testDebug('Removed --disable-extensions argument to allow extension loading');
   }
 
   enhancedOptions.args = args;
